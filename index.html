@@ -282,7 +282,7 @@ async function startAuth(){
   if(CFG.CLIENT_ID==='YOUR_CLIENT_ID.apps.googleusercontent.com'){showSetup();return;}
   // Use redirect flow instead of popup to avoid Cross-Origin-Opener-Policy issues
   // Use exact origin as redirect_uri - must match Google Cloud exactly
-  const redirect_uri='https://sid-crm.netlify.app';
+  const redirect_uri='https://sri-indra-diagnostics.github.io/sid-crm';
   const params=new URLSearchParams({
     client_id:CFG.CLIENT_ID,
     redirect_uri:redirect_uri,
