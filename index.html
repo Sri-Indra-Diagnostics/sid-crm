@@ -373,7 +373,7 @@ async function initDrive(){
     setTimeout(saveMaster, 2000);
   }
   if(!MASTER.suggestions)MASTER.suggestions=[];
-  if(!MASTER.territories)MASTER.territories=[
+  if(!MASTER.territories||!MASTER.territories.length)MASTER.territories=[
     {id:'t1',name:'Hyderabad',reps:['kajal','nagendra'],notes:'Telangana, AP'},
     {id:'t2',name:'Visakhapatnam',reps:['siva'],notes:'AP - Vizag cluster'},
     {id:'t3',name:'Bengaluru',reps:[],notes:'Karnataka'},
