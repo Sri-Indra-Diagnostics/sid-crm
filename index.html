@@ -359,7 +359,15 @@ async function initDrive(){
     const mf=await mkFile('master.json','__master__');MFID=mf.id;MASTER=mf.data;
     // If master has no accounts, seed with default data
   if(!MASTER.products||!MASTER.products.length)MASTER.products=defProds();
-  if(!MASTER.accounts||!MASTER.accounts.length){const seed=seedMaster();MASTER.accounts=seed.accounts;MASTER.contacts=seed.contacts;}
+  if(!MASTER.accounts||MASTER.accounts.length<10){
+    // Fewer than 10 accounts means Drive has an empty/stub master - load seed data
+    const seed=seedMaster();
+    MASTER.accounts=seed.accounts;
+    // Only seed contacts if also empty
+    if(!MASTER.contacts||!MASTER.contacts.length)MASTER.contacts=seed.contacts;
+    // Save seeded master back to Drive immediately
+    setTimeout(saveMaster, 2000);
+  }
   if(!MASTER.suggestions)MASTER.suggestions=[];
     const toLoad=CU.role==='rep'?[CU]:REPS();
     for(const u of toLoad){const f=await mkFile(u.file,u.id);FID[u.id]=f.id;DD[u.id]=f.data;}
