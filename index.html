@@ -281,22 +281,31 @@ let FID={},MFID=null,FOID=null,EOPP=null,SDRILL=null;
 async function startAuth(){
   if(CFG.CLIENT_ID==='YOUR_CLIENT_ID.apps.googleusercontent.com'){showSetup();return;}
   try{
-    await ls('https://accounts.google.com/gsi/client');
+    // Load both scripts in parallel before opening auth
+    await Promise.all([
+      ls('https://accounts.google.com/gsi/client'),
+      loadGapi()
+    ]);
     const tc=google.accounts.oauth2.initTokenClient({
       client_id:CFG.CLIENT_ID,
       scope:CFG.SCOPE,
       callback:async r=>{
-        if(r.error){dbarShow('err','Sign-in failed: '+r.error);return;}
-        sessionStorage.setItem('crm_token',r.access_token);
+        if(r.error){db('err','Sign-in failed: '+r.error);return;}
         try{
-          await loadGapi();
           gapi.client.setToken({access_token:r.access_token});
+          sessionStorage.setItem('crm_token',r.access_token);
           await identifyUser();
-        }catch(e){dbarShow('err','Drive error. Please try again.');}
+        }catch(e){
+          console.error('identifyUser failed:',e);
+          db('err','Sign-in error: '+e.message);
+        }
       }
     });
     tc.requestAccessToken({prompt:'select_account'});
-  }catch(e){dbarShow('err','Sign-in error. Please try again.');}
+  }catch(e){
+    console.error('startAuth error:',e);
+    db('err','Sign-in failed. Check console for details.');
+  }
 }
 
 async function handleRedirectToken(){return false;}
