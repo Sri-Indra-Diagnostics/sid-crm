@@ -295,20 +295,8 @@ async function startAuth(){
 }
 
 async function handleRedirectToken(){
-  // Check if we're returning from OAuth redirect
-  const hash=window.location.hash;
-  if(!hash)return false;
-  const params=new URLSearchParams(hash.slice(1));
-  const token=params.get('access_token');
-  const state=params.get('state');
-  if(!token||state!=='auth')return false;
-  // Clean URL
-  window.history.replaceState(null,'',window.location.pathname);
-  // Load gapi and set token
-  await loadGapi();
-  gapi.client.setToken({access_token:token});
-  await identifyUser();
-  return true;
+  // Legacy - now handled in init
+  return false;
 }
 function ls(src){return new Promise(r=>{const s=document.createElement('script');s.src=src;s.onload=r;document.head.appendChild(s);});}
 function loadGapi(){return new Promise(r=>{ls('https://apis.google.com/js/api.js').then(()=>gapi.load('client',async()=>{await gapi.client.init({});await gapi.client.load('https://www.googleapis.com/discovery/v1/apis/drive/v3/rest');r();}));});}
@@ -1238,12 +1226,37 @@ function showSetup(){document.getElementById('login-screen').innerHTML=`<div sty
 function applyCid(){const v=document.getElementById('cidx').value.trim();if(!v.includes('.apps.googleusercontent.com')){alert('Invalid Client ID');return;}CFG.CLIENT_ID=v;try{localStorage.setItem('crm_cid',v);}catch(e){}location.reload();}
 
 // ── INIT ──
-(async function(){loadReg();try{const c=localStorage.getItem('crm_cid');if(c)CFG.CLIENT_ID=c;}catch(e){}document.getElementById('setup-notice').classList.add('hidden');
-// Handle OAuth redirect return
-if(window.location.hash&&window.location.hash.includes('access_token')){
-  document.getElementById('login-screen').style.display='flex';
-  await handleRedirectToken();
-}
+(async function(){
+  loadReg();
+  try{const c=localStorage.getItem('crm_cid');if(c)CFG.CLIENT_ID=c;}catch(e){}
+  document.getElementById('setup-notice').classList.add('hidden');
+  // Save token from hash to sessionStorage immediately (before hash is lost)
+  const h=window.location.hash;
+  if(h&&h.includes('access_token')){
+    try{
+      const p=new URLSearchParams(h.slice(1));
+      const tok=p.get('access_token');
+      const st=p.get('state');
+      if(tok&&st==='auth'){
+        sessionStorage.setItem('crm_pending_token',tok);
+        window.history.replaceState(null,'',window.location.pathname);
+      }
+    }catch(e){}
+  }
+  // Check for pending token (either just saved or from previous load)
+  const pending=sessionStorage.getItem('crm_pending_token');
+  if(pending){
+    sessionStorage.removeItem('crm_pending_token');
+    document.getElementById('login-screen').style.display='flex';
+    try{
+      await loadGapi();
+      gapi.client.setToken({access_token:pending});
+      await identifyUser();
+    }catch(e){
+      console.error('Token processing failed:',e);
+      dbarShow('err','Sign-in failed. Please try again.');
+    }
+  }
 })();
 </script>
 </body>
