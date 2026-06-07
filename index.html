@@ -278,36 +278,37 @@ let DD={},MASTER={products:[],accounts:[],contacts:[],suggestions:[]};
 let FID={},MFID=null,FOID=null,EOPP=null,SDRILL=null;
 
 // ── DRIVE ──
+// Global token client for silent refresh
+let TC=null;
+
 async function startAuth(){
   if(CFG.CLIENT_ID==='YOUR_CLIENT_ID.apps.googleusercontent.com'){showSetup();return;}
   try{
-    // Load both scripts in parallel before opening auth
-    await Promise.all([
-      ls('https://accounts.google.com/gsi/client'),
-      loadGapi()
-    ]);
-    const tc=google.accounts.oauth2.initTokenClient({
+    await Promise.all([ls('https://accounts.google.com/gsi/client'),loadGapi()]);
+    TC=google.accounts.oauth2.initTokenClient({
       client_id:CFG.CLIENT_ID,
       scope:CFG.SCOPE,
       callback:async r=>{
         if(r.error){db('err','Sign-in failed: '+r.error);return;}
         try{
-          localStorage.setItem('crm_token',r.access_token);localStorage.setItem('crm_token_time',Date.now());
           gapi.client.setToken({access_token:r.access_token});
-          console.log('Token received, calling identifyUser...');
+          localStorage.setItem('crm_token',r.access_token);
+          localStorage.setItem('crm_token_time',Date.now());
           await identifyUser();
-        }catch(e){
-          console.error('identifyUser failed:',e);
-          db('err','Sign-in error: '+e.message);
-        }
+        }catch(e){db('err','Sign-in error: '+e.message);}
       }
     });
-    tc.requestAccessToken({prompt:'select_account'});
-  }catch(e){
-    console.error('startAuth error:',e);
-    db('err','Sign-in failed. Check console for details.');
-  }
+    TC.requestAccessToken({prompt:'select_account'});
+  }catch(e){db('err','Sign-in failed. Please try again.');}
 }
+
+// Silent token refresh every 45 min - no popup
+async function silentTokenRefresh(){
+  if(!TC)return;
+  try{TC.requestAccessToken({prompt:''});}catch(e){}
+}
+setInterval(silentTokenRefresh,45*60*1000);
+
 
 async function handleRedirectToken(){return false;}
 function ls(src){return new Promise(r=>{const s=document.createElement('script');s.src=src;s.onload=r;document.head.appendChild(s);});}
@@ -315,6 +316,8 @@ function loadGapi(){return new Promise(r=>{ls('https://apis.google.com/js/api.js
 async function identifyUser(){
   const token=gapi.client.getToken()?.access_token||localStorage.getItem('crm_token');
   if(token&&!localStorage.getItem('crm_token_time'))localStorage.setItem('crm_token_time',Date.now());
+  // Restore TC for silent refresh
+  if(!TC){try{await ls('https://accounts.google.com/gsi/client');TC=google.accounts.oauth2.initTokenClient({client_id:CFG.CLIENT_ID,scope:CFG.SCOPE,callback:async r=>{if(r.error)return;gapi.client.setToken({access_token:r.access_token});localStorage.setItem('crm_token',r.access_token);localStorage.setItem('crm_token_time',Date.now());}});}catch(e){}}
   if(!token){db('err','No access token. Please sign in again.');return;}
   // Use tokeninfo to get email from the token itself
   const resp=await fetch('https://www.googleapis.com/oauth2/v3/tokeninfo?access_token='+encodeURIComponent(token));
@@ -380,7 +383,17 @@ async function initDrive(){
     const toLoad=CU.role==='rep'?[CU]:REPS();
     for(const u of toLoad){const f=await mkFile(u.file,u.id);FID[u.id]=f.id;DD[u.id]=f.data;}
     db('ok','Connected · SID_CRM');
-  }catch(e){db('warn','Drive offline — using cached data');DD[CU.id]=ll('r_'+CU.id)||emptyRep(CU.id);MASTER=ll('master')||{products:defProds(),accounts:[],contacts:[],suggestions:[]};}
+  }catch(e){
+    if(!retried&&TC&&CU.id){
+      retried=true;
+      try{
+        await new Promise(res=>setTimeout(res,1000));
+        TC.requestAccessToken({prompt:''});
+        await new Promise(res=>setTimeout(res,2000));
+        return driveCall(); // retry once
+      }catch(e2){}
+    }
+    db('warn','Drive offline — <a href="#" onclick="retryDrive()" style="color:var(--blue);text-decoration:underline">Reconnect</a>');DD[CU.id]=ll('r_'+CU.id)||emptyRep(CU.id);MASTER=ll('master')||{products:defProds(),accounts:[],contacts:[],suggestions:[]};}
 }
 async function mkFolder(){const r=await gapi.client.drive.files.list({q:`name='${CFG.FOLDER}' and mimeType='application/vnd.google-apps.folder' and trashed=false`,fields:'files(id,size)',spaces:'drive'});if(r.result.files.length)return r.result.files[0].id;return(await gapi.client.drive.files.create({resource:{name:CFG.FOLDER,mimeType:'application/vnd.google-apps.folder'},fields:'id'})).result.id;}
 async function mkFile(name,uid){
@@ -815,6 +828,21 @@ window.updateTerrReps=()=>{
   const terr=(MASTER.territories||[]).find(t=>t.id===terrId);
   const terrReps=terr?(terr.reps||[]).map(id=>USERS.find(u=>u.id===id)).filter(Boolean):REPS();
   grid.innerHTML=terrReps.map(u=>`<label class="rep-check"><input type="checkbox" class="acct-rep-cb" value="${u.id}"><div class="av" style="background:${u.color}22;color:${u.color}">${u.av}</div>${u.name}</label>`).join('');
+};
+
+window.retryDrive=async()=>{
+  db('warn','Reconnecting…');
+  try{
+    if(TC&&CU.id){
+      TC.requestAccessToken({prompt:''});
+      await new Promise(res=>setTimeout(res,2000));
+    }
+    await initDrive();
+    db('ok','Reconnected · SID_CRM');
+    go(CP); // reload current page
+  }catch(e){
+    db('err','Could not reconnect. Please sign out and sign in again.');
+  }
 };
 window.quickAssignTerr=(idx,terrId)=>{
   MASTER.accounts[idx].territory=terrId;
