@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Sri Indra CRM</title>
+<style>
+:root{
+  --blue:#1a56db;--blue-lt:#e8f0fe;--blue-dk:#1239a0;
+  --green:#0f9d58;--green-lt:#e6f4ea;
+  --amber:#f59e0b;--amber-lt:#fef3c7;
+  --red:#dc2626;--red-lt:#fee2e2;
+  --teal:#0d9488;--teal-lt:#ccfbf1;
+  --purple:#7c3aed;--purple-lt:#ede9fe;
+  --orange:#ea580c;--orange-lt:#fff7ed;
+  --gray-50:#f9fafb;--gray-100:#f3f4f6;--gray-200:#e5e7eb;
+  --gray-400:#9ca3af;--gray-500:#6b7280;--gray-700:#374151;--gray-900:#111827;
+  --white:#fff;
+  --r-sm:6px;--r-md:10px;--r-lg:14px;--r-xl:20px;
+  --font:-apple-system,'Segoe UI',Roboto,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:var(--font);background:var(--gray-50);color:var(--gray-900);min-height:100vh;font-size:14px}
+.hidden{display:none!important}
+a{color:var(--blue);text-decoration:none}
+#login-screen{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:28px;background:var(--white)}
+.brand{display:flex;flex-direction:column;align-items:center;gap:10px}
+.brand-logo{width:52px;height:52px;background:var(--blue);border-radius:14px;display:flex;align-items:center;justify-content:center}
+.brand-logo svg{width:28px;height:28px;fill:white}
+.brand-name{font-size:20px;font-weight:700}
+.brand-sub{font-size:13px;color:var(--gray-500)}
+.login-box{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--r-xl);padding:26px 22px;width:100%;max-width:360px}
+.login-box h2{font-size:16px;font-weight:600;margin-bottom:5px}
+.login-box p{font-size:13px;color:var(--gray-500);margin-bottom:18px}
+.g-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:11px 18px;border:1px solid var(--gray-200);border-radius:var(--r-md);background:var(--white);font-size:14px;font-weight:500;cursor:pointer}
+.g-btn:hover{background:var(--gray-50)}
+.setup-notice{font-size:12px;color:var(--gray-500);background:var(--amber-lt);border:1px solid #fcd34d;border-radius:var(--r-md);padding:11px 14px;max-width:360px;width:100%}
+#mode-screen{min-height:100vh;display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:24px;background:var(--white)}
+.mode-cards{display:flex;flex-direction:column;gap:12px;width:100%;max-width:340px}
+.mode-card{background:var(--white);border:2px solid var(--gray-200);border-radius:var(--r-xl);padding:22px 18px;cursor:pointer;display:flex;align-items:center;gap:14px;transition:border-color .15s}
+.mode-card:hover{border-color:var(--blue)}
+.mode-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.mode-icon svg{width:22px;height:22px}
+.mode-title{font-size:14px;font-weight:700;margin-bottom:2px}
+.mode-desc{font-size:11px;color:var(--gray-500);line-height:1.4}
+#app{display:none;flex-direction:column;min-height:100vh}
+.topbar{background:var(--white);border-bottom:1px solid var(--gray-200);padding:0 14px;display:flex;align-items:center;justify-content:space-between;height:52px;position:sticky;top:0;z-index:50;gap:10px}
+.t-brand{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.t-logo{width:30px;height:30px;background:var(--blue);border-radius:8px;display:flex;align-items:center;justify-content:center}
+.t-logo svg{width:16px;height:16px;fill:white}
+.t-title{font-size:14px;font-weight:700;display:none}
+@media(min-width:460px){.t-title{display:block}}
+.t-right{display:flex;align-items:center;gap:6px}
+.uchip{display:flex;align-items:center;gap:6px;padding:4px 9px 4px 5px;border:1px solid var(--gray-200);border-radius:30px;background:var(--gray-50);font-size:12px}
+.av{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0}
+.rbadge{font-size:10px;padding:2px 6px;border-radius:20px;font-weight:600}
+.rb-rep{background:var(--blue-lt);color:var(--blue-dk)}
+.rb-mgmt{background:var(--purple-lt);color:var(--purple)}
+.sw-btn{font-size:11px;padding:3px 9px;border:1px solid var(--gray-200);border-radius:20px;background:var(--white);cursor:pointer;color:var(--gray-500);font-weight:600}
+.sw-btn:hover{background:var(--gray-100)}
+.ibtn{width:34px;height:34px;border-radius:var(--r-md);border:none;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--gray-500)}
+.ibtn:hover{background:var(--gray-100)}
+.layout{display:flex;flex:1;overflow:hidden}
+.sidebar{width:192px;flex-shrink:0;background:var(--white);border-right:1px solid var(--gray-200);padding:10px 7px;display:none;flex-direction:column;gap:2px;overflow-y:auto}
+@media(min-width:620px){.sidebar{display:flex}}
+.sni{display:flex;align-items:center;gap:9px;padding:8px 11px;border-radius:var(--r-md);cursor:pointer;font-size:12px;color:var(--gray-500);border:none;background:none;width:100%;text-align:left;font-weight:500}
+.sni:hover{background:var(--gray-100)}
+.sni.on{background:var(--blue-lt);color:var(--blue)}
+.sni svg{width:16px;height:16px;stroke-width:1.8;flex-shrink:0}
+.snisep{height:1px;background:var(--gray-200);margin:5px 3px}
+.main{flex:1;overflow-y:auto;overflow-x:hidden}
+.page{display:none;padding:14px}
+.page.on{display:block}
+.bnav{display:flex;background:var(--white);border-top:1px solid var(--gray-200);position:sticky;bottom:0;z-index:50}
+.bni{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 2px;cursor:pointer;color:var(--gray-400);font-size:9px;font-weight:600;border:none;background:none}
+.bni.on{color:var(--blue)}
+.bni svg{width:20px;height:20px;stroke-width:1.8}
+@media(min-width:620px){.bnav{display:none}}
+.fab{position:fixed;bottom:66px;right:14px;z-index:60;width:50px;height:50px;border-radius:50%;background:var(--blue);color:white;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(26,86,219,.4)}
+.fab svg{width:22px;height:22px;stroke-width:2.2}
+@media(min-width:620px){.fab{display:none}}
+.metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-bottom:14px}
+@media(min-width:440px){.metrics{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:720px){.metrics{grid-template-columns:repeat(5,1fr)}}
+.mc{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--r-lg);padding:11px 13px}
+.mc-lbl{font-size:10px;color:var(--gray-500);margin-bottom:3px;font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+.mc-val{font-size:20px;font-weight:700;letter-spacing:-.4px}
+.sec-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;margin-top:16px}
+.sec-title{font-size:12px;font-weight:700;color:var(--gray-700);text-transform:uppercase;letter-spacing:.4px}
+.frow{display:flex;align-items:center;gap:7px;margin-bottom:6px}
+.fl{font-size:11px;color:var(--gray-500);width:90px;text-align:right;flex-shrink:0}
+.ft{flex:1;background:var(--gray-100);border-radius:20px;height:12px;overflow:hidden}
+.ff{height:100%;border-radius:20px}
+.fv{font-size:11px;color:var(--gray-500);width:76px;text-align:right;flex-shrink:0}
+.chart-wrap{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--r-lg);padding:14px;margin-bottom:10px}
+.cbr{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.clbl{font-size:11px;color:var(--gray-700);width:148px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500}
+.ctrack{flex:1;background:var(--gray-100);border-radius:20px;height:18px;overflow:hidden;min-width:0}
+.cbar{height:100%;border-radius:20px;display:flex;align-items:center;padding-left:6px;min-width:4px}
+.cbar-lbl{font-size:10px;font-weight:600;color:white;white-space:nowrap;overflow:hidden}
+.ccnt{font-size:11px;color:var(--gray-500);width:36px;text-align:right;flex-shrink:0}
+.kb-wrap{overflow-x:auto;padding-bottom:8px}
+.kb{display:flex;gap:9px;min-width:max-content}
+.lane{width:168px}
+.lane-hd{font-size:11px;font-weight:700;padding:5px 9px;border-radius:var(--r-md) var(--r-md) 0 0;display:flex;justify-content:space-between;align-items:center}
+.lane-body{background:var(--gray-100);border-radius:0 0 var(--r-md) var(--r-md);min-height:80px;padding:5px;display:flex;flex-direction:column;gap:5px}
+.kcard{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--r-md);padding:8px 9px;cursor:pointer}
+.kcard:hover{border-color:#93c5fd}
+.kca{font-size:11px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px}
+.kcp{font-size:10px;color:var(--gray-500);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:5px}
+.kcf{display:flex;justify-content:space-between;align-items:center}
+.kcv{font-size:11px;font-weight:700;color:var(--blue)}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--gray-200);border-radius:var(--r-lg);background:var(--white)}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{padding:9px 11px;text-align:left;font-size:10px;font-weight:700;color:var(--gray-500);border-bottom:1px solid var(--gray-200);background:var(--gray-50);white-space:nowrap;text-transform:uppercase;letter-spacing:.3px}
+td{padding:8px 11px;border-bottom:1px solid var(--gray-100);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--gray-50)}
+.tdx{max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pill{font-size:10px;padding:2px 7px;border-radius:20px;font-weight:600;white-space:nowrap;display:inline-block}
+.ps{font-size:10px;padding:2px 6px;border-radius:20px;font-weight:500;display:inline-block}
+.pw{background:var(--amber-lt);color:#92400e}
+.pok{background:var(--green-lt);color:#166534}
+.pi{background:var(--blue-lt);color:var(--blue-dk)}
+.pr{background:var(--red-lt);color:#991b1b}
+.tb{display:flex;gap:7px;align-items:center;margin-bottom:11px;flex-wrap:wrap}
+.tb input[type=text],.tb select{font-size:12px;padding:6px 9px;border:1px solid var(--gray-200);border-radius:var(--r-md);background:var(--white);color:var(--gray-900);height:32px}
+.sp{flex:1}
+.btn{display:inline-flex;align-items:center;gap:4px;padding:6px 12px;border-radius:var(--r-md);font-size:12px;font-weight:600;cursor:pointer;height:32px;border:none}
+.bp{background:var(--blue);color:white}.bp:hover{background:var(--blue-dk)}
+.bg{background:var(--white);border:1px solid var(--gray-200);color:var(--gray-700)}.bg:hover{background:var(--gray-50)}
+.bd{background:none;border:1px solid #fca5a5;color:var(--red)}
+.bsm{height:26px;padding:3px 9px;font-size:11px}
+.b-ok{background:var(--green-lt);border:1px solid #86efac;color:#166534}
+.rep-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:9px;margin-bottom:12px}
+.rep-card{background:var(--white);border:1.5px solid var(--gray-200);border-radius:var(--r-lg);padding:13px 11px;cursor:pointer}
+.rep-card:hover{border-color:#93c5fd}
+.rep-card.sel{border-color:var(--blue);background:var(--blue-lt)}
+.rav{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;margin-bottom:7px}
+.sbadge{display:inline-flex;align-items:center;font-size:10px;padding:2px 7px;border-radius:20px;font-weight:600}
+.sb-pending{background:var(--amber-lt);color:#92400e}
+.sb-approved{background:var(--green-lt);color:#166534}
+.sb-rejected{background:var(--red-lt);color:#991b1b}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.42);z-index:200;display:flex;align-items:flex-end;justify-content:center}
+@media(min-width:500px){.overlay{align-items:center;padding:20px}}
+.modal{background:var(--white);border-radius:var(--r-xl) var(--r-xl) 0 0;width:100%;max-width:480px;max-height:92vh;overflow-y:auto;display:flex;flex-direction:column}
+@media(min-width:500px){.modal{border-radius:var(--r-xl)}}
+.mhd{display:flex;justify-content:space-between;align-items:center;padding:15px 17px;border-bottom:1px solid var(--gray-200);flex-shrink:0;position:sticky;top:0;background:var(--white);z-index:1}
+.mhd h3{font-size:15px;font-weight:700}
+.mbody{padding:16px 17px;display:flex;flex-direction:column;gap:12px}
+.mft{display:flex;gap:8px;padding:11px 17px;border-top:1px solid var(--gray-200);flex-shrink:0}
+.fg{display:flex;flex-direction:column;gap:4px}
+.fg label{font-size:11px;font-weight:700;color:var(--gray-500)}
+.fg input,.fg select,.fg textarea{font-size:13px;padding:8px 10px;border:1.5px solid var(--gray-200);border-radius:var(--r-md);background:var(--white);width:100%;color:var(--gray-900)}
+.fg input:focus,.fg select:focus,.fg textarea:focus{outline:none;border-color:var(--blue)}
+.fg textarea{resize:vertical;min-height:60px}
+.fr2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.fr3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px}
+.dup-warn{font-size:11px;background:var(--amber-lt);border:1px solid #fcd34d;border-radius:var(--r-sm);padding:7px 10px;color:#92400e;display:none}
+.rep-check-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
+.rep-check{display:flex;align-items:center;gap:7px;padding:7px 9px;border:1.5px solid var(--gray-200);border-radius:var(--r-md);cursor:pointer;font-size:12px;font-weight:500}
+.rep-check input{width:15px;height:15px;cursor:pointer;accent-color:var(--blue)}
+.rep-check.sel{border-color:var(--blue);background:var(--blue-lt)}
+.at-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-bottom:4px}
+.at-btn{display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 3px;border:1.5px solid var(--gray-200);border-radius:var(--r-md);cursor:pointer;font-size:9px;font-weight:600;color:var(--gray-500);background:var(--white)}
+.at-btn.on{border-color:var(--blue);background:var(--blue-lt);color:var(--blue)}
+.at-btn svg{width:16px;height:16px;stroke-width:1.8}
+.dbar{display:flex;align-items:center;gap:7px;padding:7px 14px;font-size:12px}
+.dbar.ok{background:var(--green-lt);color:#166534}
+.dbar.warn{background:var(--amber-lt);color:#92400e}
+.dbar.err{background:var(--red-lt);color:#991b1b}
+.ddot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}
+.admin-tabs{display:flex;gap:2px;border-bottom:1px solid var(--gray-200);margin-bottom:14px;flex-wrap:wrap}
+.atab{font-size:12px;font-weight:600;padding:8px 14px;border:none;background:none;cursor:pointer;color:var(--gray-500);border-bottom:2px solid transparent;margin-bottom:-1px}
+.atab.on{color:var(--blue);border-bottom-color:var(--blue)}
+.info-box{font-size:12px;color:var(--blue-dk);background:var(--blue-lt);border:1px solid #bfdbfe;border-radius:var(--r-md);padding:10px 12px;margin-bottom:12px}
+.setup-card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--r-xl);padding:18px;margin-bottom:12px}
+.step{display:flex;gap:11px;margin-bottom:13px}
+.snum{width:24px;height:24px;border-radius:50%;background:var(--blue);color:white;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.sbody h4{font-size:13px;font-weight:600;margin-bottom:2px}
+.sbody p{font-size:12px;color:var(--gray-500);line-height:1.55}
+.sbody code{font-size:11px;background:var(--gray-100);padding:1px 5px;border-radius:3px;font-family:monospace}
+.cid-input{width:100%;font-size:12px;padding:8px 10px;border:1.5px solid var(--blue);border-radius:var(--r-md);margin-top:6px;font-family:monospace}
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="brand">
+    <div class="brand-logo"><svg viewBox="0 0 24 24"><path d="M3 3h7v7H3zm11 0h7v7h-7zM3 14h7v7H3zm11 3h2v-2h2v2h2v2h-2v2h-2v-2h-2z"/></svg></div>
+    <div class="brand-name">Sri Indra CRM</div>
+    <div class="brand-sub">Powered by Google Drive</div>
+  </div>
+  <div class="login-box">
+    <h2>Sign in to continue</h2>
+    <p>Your data stays in Google Drive. Only you can see your files.</p>
+    <button class="g-btn" onclick="startAuth()">
+      <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Sign in with Google
+    </button>
+  </div>
+  <div class="setup-notice" id="setup-notice"><b style="color:var(--amber)">⚙ Setup needed.</b> <a href="#" onclick="showSetup();return false" style="color:var(--amber);font-weight:600">Open setup guide →</a></div>
+</div>
+
+<div id="mode-screen">
+  <div class="brand">
+    <div class="brand-logo"><svg viewBox="0 0 24 24"><path d="M3 3h7v7H3zm11 0h7v7h-7zM3 14h7v7H3zm11 3h2v-2h2v2h2v2h-2v2h-2v-2h-2z"/></svg></div>
+    <div class="brand-name">Welcome, Maruti</div>
+    <div class="brand-sub">Choose how you want to work today</div>
+  </div>
+  <div class="mode-cards">
+    <div class="mode-card" onclick="launchAs('rep')">
+      <div class="mode-icon" style="background:var(--blue-lt)"><svg fill="none" viewBox="0 0 24 24" stroke="#1a56db" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0112 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 01-.673-.38m0 0A2.18 2.18 0 013 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m7.5 0V5.25A2.25 2.25 0 0013.5 3h-3a2.25 2.25 0 00-2.25 2.25v.894m7.5 0a48.667 48.667 0 00-7.5 0M12 12.75h.008v.008H12v-.008z"/></svg></div>
+      <div><div class="mode-title">My sales view</div><div class="mode-desc">Your accounts, pipeline, activity and plan</div></div>
+    </div>
+    <div class="mode-card" onclick="launchAs('mgmt')">
+      <div class="mode-icon" style="background:var(--purple-lt)"><svg fill="none" viewBox="0 0 24 24" stroke="#7c3aed" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/></svg></div>
+      <div><div class="mode-title">Management + Admin</div><div class="mode-desc">Team pipeline, master data, approval queue</div></div>
+    </div>
+  </div>
+</div>
+
+<div id="app">
+  <div id="dbar" class="dbar warn hidden"><div class="ddot"></div><span id="dbar-msg">Connecting…</span></div>
+  <div class="topbar">
+    <div class="t-brand">
+      <div class="t-logo"><svg viewBox="0 0 24 24"><path d="M3 3h7v7H3zm11 0h7v7h-7zM3 14h7v7H3zm11 3h2v-2h2v2h2v2h-2v2h-2v-2h-2z"/></svg></div>
+      <span class="t-title" id="t-title">Sri Indra CRM</span>
+    </div>
+    <div class="t-right">
+      <div class="uchip"><div class="av" id="tav"></div><span id="tname" style="font-weight:600;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span><span id="trole" class="rbadge"></span></div>
+      <button id="sw-btn" class="sw-btn hidden" onclick="switchMode()">&#8644; Switch</button>
+      <button class="ibtn" onclick="signOut()" title="Sign out"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg></button>
+    </div>
+  </div>
+  <div class="layout">
+    <nav class="sidebar" id="sidebar"></nav>
+    <main class="main" id="main"></main>
+  </div>
+  <nav class="bnav" id="bnav"></nav>
+  <button class="fab hidden" id="fab" onclick="openActModal()"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg></button>
+</div>
+<div id="mroot"></div>
+
+<script>
+const CFG={CLIENT_ID:'470374809207-kvgfblof4m78dnna4ha8vatcq0gch8er.apps.googleusercontent.com',SCOPE:'https://www.googleapis.com/auth/drive.file',FOLDER:'SID_CRM'};
+const STAGES=['Identified','Qualified','Proposal Sent','Quote Sent','Negotiation','Verbal Won','Won','Lost','On Hold'];
+const ACTIVE=['Identified','Qualified','Proposal Sent','Quote Sent','Negotiation','Verbal Won'];
+const SCLR={Identified:'#9ca3af',Qualified:'#1a56db','Proposal Sent':'#0f9d58','Quote Sent':'#0d9488',Negotiation:'#f59e0b','Verbal Won':'#d97706',Won:'#166534',Lost:'#dc2626','On Hold':'#6b7280'};
+const PROB={Identified:10,Qualified:20,'Proposal Sent':40,'Quote Sent':50,Negotiation:70,'Verbal Won':90,Won:100,Lost:0,'On Hold':20};
+const ACT_TYPES=['Call','Visit','Demo','Microsoft Teams','Email','LinkedIn','Trade Show','Other'];
+// Activity categories
+const VISIT_TYPES=['Visit','Demo','Microsoft Teams'];  // → monthly visit tracker
+const SERVICE_TYPES=['Installation','AMC','Commissioning','Service Call','Other Service']; // → service tracker
+const TOUCHPOINT_TYPES=['Call','Email','LinkedIn','Trade Show','Other']; // → activity log only
+const ALL_LOG_TYPES=[...VISIT_TYPES,...TOUCHPOINT_TYPES];
+const ASVG={Call:'<path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"/>',Visit:'<path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/>',Demo:'<path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0H3"/>',Email:'<path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/>',LinkedIn:'<path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244"/>',
+'Microsoft Teams':'<path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/>'};
+const DROLES=['Decision Maker','Influencer','User','Champion','Gatekeeper'];
+const ATIERS=['A','B','C'];
+const ASEGS=['API','Formulations','CDMO','CRO','Sterile Injectables','Biologics','Vaccine','Contract Testing Lab','R&D','Other'];
+const ATYPES=['Customer','Prospect','Lead'];
+const STATES=['Telangana','Andhra Pradesh','Karnataka','Tamil Nadu','Kerala','Maharashtra','Goa','Puducherry','Others'];
+const VCLR={Lonza:'#1a56db',Sterexa:'#0d9488',Acculize:'#0f9d58',Cytiva:'#7c3aed',Terragene:'#f59e0b','Neutron Technologies':'#ea580c'};
+const USERS=[
+  {id:'maruti',name:'Maruti Ram',email:'maruti.ram@indradiagnostics.com',role:'both',av:'MR',color:'#1a56db',file:'maruti.json'},
+  {id:'subbu',name:'KLV Subrahmanyam',email:'info@indradiagnostics.com',role:'management',av:'KS',color:'#7c3aed',file:'subbu.json'},
+  {id:'sailendra',name:'V.S. Sailendra',email:'sailendra@indradiagnostics.com',role:'management',av:'VS',color:'#7c3aed',file:'sailendra.json'},
+  {id:'kajal',name:'Kajal Kumari',email:'kajal@indradiagnostics.com',role:'rep',av:'KK',color:'#0d9488',file:'kajal.json'},
+  {id:'siva',name:'K. Siva Prasad',email:'siva@indradiagnostics.com',role:'rep',av:'SP',color:'#0f9d58',file:'siva.json'},
+  {id:'nagendra',name:'D. Nagendra',email:'nagendra@indradiagnostics.com',role:'rep',av:'DN',color:'#f59e0b',file:'nagendra.json'},
+  {id:'slot6',name:'Rep (slot 6)',email:'',role:'rep',av:'R6',color:'#9ca3af',file:'slot6.json'},
+  {id:'slot7',name:'Rep (slot 7)',email:'',role:'rep',av:'R7',color:'#9ca3af',file:'slot7.json'},
+];
+const REPS=()=>USERS.filter(u=>u.role==='rep'||u.role==='both');
+let CU=null,CV='rep',CP='dashboard';
+let DD={},MASTER={products:[],accounts:[],contacts:[],suggestions:[]};
+let FID={},MFID=null,FOID=null,EOPP=null,SDRILL=null;
+
+// ── DRIVE ──
+async function startAuth(){
+  if(CFG.CLIENT_ID==='YOUR_CLIENT_ID.apps.googleusercontent.com'){showSetup();return;}
+  try{
+    // Load both scripts in parallel before opening auth
+    await Promise.all([
+      ls('https://accounts.google.com/gsi/client'),
+      loadGapi()
+    ]);
+    const tc=google.accounts.oauth2.initTokenClient({
+      client_id:CFG.CLIENT_ID,
+      scope:CFG.SCOPE,
+      callback:async r=>{
+        if(r.error){db('err','Sign-in failed: '+r.error);return;}
+        try{
+          sessionStorage.setItem('crm_token',r.access_token);
+          gapi.client.setToken({access_token:r.access_token});
+          console.log('Token received, calling identifyUser...');
+          await identifyUser();
+        }catch(e){
+          console.error('identifyUser failed:',e);
+          db('err','Sign-in error: '+e.message);
+        }
+      }
+    });
+    tc.requestAccessToken({prompt:'select_account'});
+  }catch(e){
+    console.error('startAuth error:',e);
+    db('err','Sign-in failed. Check console for details.');
+  }
+}
+
+async function handleRedirectToken(){return false;}
+function ls(src){return new Promise(r=>{const s=document.createElement('script');s.src=src;s.onload=r;document.head.appendChild(s);});}
+function loadGapi(){return new Promise(r=>{ls('https://apis.google.com/js/api.js').then(()=>gapi.load('client',async()=>{await gapi.client.init({});await gapi.client.load('https://www.googleapis.com/discovery/v1/apis/drive/v3/rest');r();}));});}
+async function identifyUser(){
+  // Use fetch directly with Authorization header to avoid gapi token timing issues
+  const token=gapi.client.getToken()?.access_token||sessionStorage.getItem('crm_token');
+  if(!token){db('err','No access token. Please sign in again.');return;}
+  const resp=await fetch('https://www.googleapis.com/oauth2/v2/userinfo',{
+    headers:{Authorization:'Bearer '+token}
+  });
+  if(!resp.ok){db('err','Sign-in failed ('+resp.status+'). Please try again.');return;}
+  const info=await resp.json();
+  let u=USERS.find(x=>x.email&&x.email.toLowerCase()===info.email.toLowerCase());
+  if(!u)u=await pickUser(info);
+  if(!u)return;
+  CU={...u};
+  await initDrive();launch();
+}
+function pickUser(info){
+  return new Promise(res=>{
+    mr(`<div class="overlay" style="z-index:300"><div class="modal" style="max-width:360px">
+      <div class="mhd"><h3>Who are you?</h3></div>
+      <div class="mbody"><p style="font-size:12px;color:var(--gray-500)">Signed in as <b>${info.email}</b></p>
+      <div style="display:flex;flex-direction:column;gap:5px">${USERS.map(u=>`<button onclick="window._pu('${u.id}')" style="display:flex;align-items:center;gap:9px;padding:9px 11px;border:1.5px solid var(--gray-200);border-radius:var(--r-md);background:var(--white);cursor:pointer;text-align:left;font-size:13px;font-weight:600">
+        <div class="av" style="background:${u.color}22;color:${u.color};width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0">${u.av}</div>
+        <div><div>${u.name}</div><div style="font-size:10px;color:var(--gray-400);font-weight:400">${u.role==='both'?'Rep + Management':u.role==='management'?'Management':'Sales Rep'}</div></div>
+      </button>`).join('')}</div></div></div></div>`);
+    window._pu=id=>{cm();const u=USERS.find(x=>x.id===id);u.email=info.email;saveReg();res(u);};
+  });
+}
+function saveReg(){try{localStorage.setItem('crm_reg',JSON.stringify(USERS.map(u=>({id:u.id,email:u.email}))));}catch(e){}}
+function loadReg(){try{JSON.parse(localStorage.getItem('crm_reg')||'[]').forEach(r=>{const u=USERS.find(x=>x.id===r.id);if(u)u.email=r.email;});}catch(e){}}
+async function initDrive(){
+  db('warn','Connecting to Google Drive…');
+  try{
+    FOID=await mkFolder();
+    const mf=await mkFile('master.json','__master__');MFID=mf.id;MASTER=mf.data;
+    ['products','accounts','contacts','suggestions'].forEach(k=>{if(!MASTER[k])MASTER[k]=k==='products'?defProds():[];});
+    const toLoad=CU.role==='rep'?[CU]:REPS();
+    for(const u of toLoad){const f=await mkFile(u.file,u.id);FID[u.id]=f.id;DD[u.id]=f.data;}
+    db('ok','Connected · SID_CRM');
+  }catch(e){db('err','Drive error — offline mode');DD[CU.id]=ll('r_'+CU.id)||emptyRep(CU.id);MASTER=ll('master')||{products:defProds(),accounts:[],contacts:[],suggestions:[]};}
+}
+async function mkFolder(){const r=await gapi.client.drive.files.list({q:`name='${CFG.FOLDER}' and mimeType='application/vnd.google-apps.folder' and trashed=false`,fields:'files(id)',spaces:'drive'});if(r.result.files.length)return r.result.files[0].id;return(await gapi.client.drive.files.create({resource:{name:CFG.FOLDER,mimeType:'application/vnd.google-apps.folder'},fields:'id'})).result.id;}
+async function mkFile(name,uid){
+  const r=await gapi.client.drive.files.list({q:`name='${name}' and '${FOID}' in parents and trashed=false`,fields:'files(id)',spaces:'drive'});
+  if(r.result.files.length){const id=r.result.files[0].id;const dl=await gapi.client.drive.files.get({fileId:id,alt:'media'});let d;try{d=typeof dl.result==='string'?JSON.parse(dl.result):dl.result;}catch(e){d=emptyRep(uid);}return{id,data:d||emptyRep(uid)};}
+  const empty=uid==='__master__'?{products:defProds(),accounts:[],contacts:[],suggestions:[]}:emptyRep(uid);
+  const b='--sid';const body=`\r\n--${b}\r\nContent-Type: application/json\r\n\r\n${JSON.stringify({name,parents:[FOID],mimeType:'application/json'})}\r\n--${b}\r\nContent-Type: application/json\r\n\r\n${JSON.stringify(empty)}\r\n--${b}--`;
+  const cr=await gapi.client.request({path:'/upload/drive/v3/files',method:'POST',params:{uploadType:'multipart'},headers:{'Content-Type':`multipart/related; boundary="${b}"`},body});
+  return{id:cr.result.id,data:empty};
+}
+async function saveDrive(uid){try{const b='--sid';const body=`\r\n--${b}\r\nContent-Type: application/json\r\n\r\n${JSON.stringify({mimeType:'application/json'})}\r\n--${b}\r\nContent-Type: application/json\r\n\r\n${JSON.stringify(DD[uid])}\r\n--${b}--`;await gapi.client.request({path:'/upload/drive/v3/files/'+FID[uid],method:'PATCH',params:{uploadType:'multipart'},headers:{'Content-Type':`multipart/related; boundary="${b}"`},body});sl('r_'+uid,DD[uid]);}catch(e){sl('r_'+uid,DD[uid]);}}
+async function saveMaster(){try{const b='--sid';const body=`\r\n--${b}\r\nContent-Type: application/json\r\n\r\n${JSON.stringify({mimeType:'application/json'})}\r\n--${b}\r\nContent-Type: application/json\r\n\r\n${JSON.stringify(MASTER)}\r\n--${b}--`;await gapi.client.request({path:'/upload/drive/v3/files/'+MFID,method:'PATCH',params:{uploadType:'multipart'},headers:{'Content-Type':`multipart/related; boundary="${b}"`},body});sl('master',MASTER);}catch(e){sl('master',MASTER);}}
+function sl(k,d){try{localStorage.setItem('crm_'+k,JSON.stringify(d));}catch(e){}}
+function ll(k){try{const v=localStorage.getItem('crm_'+k);return v?JSON.parse(v):null;}catch(e){return null;}}
+function db(t,msg){const el=document.getElementById('dbar');el.className='dbar '+t;el.classList.remove('hidden');document.getElementById('dbar-msg').textContent=msg;}
+async function signOut(){if(!confirm('Sign out?'))return;try{google.accounts.oauth2.revoke(gapi.client.getToken()?.access_token,()=>{});}catch(e){}CU=null;DD={};FID={};FOID=null;MFID=null;document.getElementById('app').style.display='none';document.getElementById('mode-screen').style.display='none';document.getElementById('fab').classList.add('hidden');document.getElementById('login-screen').style.display='flex';}
+
+function defProds(){return[
+  {id:'p01',vendor:'Lonza',name:'Gel-Clot',sku:'',price:0,notes:'LAL gel-clot'},
+  {id:'p02',vendor:'Lonza',name:'Nebula',sku:'',price:0,notes:'Endotoxin system'},
+  {id:'p03',vendor:'Lonza',name:'PyroTec PRO',sku:'',price:0,notes:'Robotic BET'},
+  {id:'p04',vendor:'Lonza',name:'MAT',sku:'',price:0,notes:'Monocyte Activation Test'},
+  {id:'p05',vendor:'Lonza',name:'Media',sku:'',price:0,notes:'Cell culture media'},
+  {id:'p06',vendor:'Sterexa',name:'Core+ Air Sampler',sku:'STX.AS.02+',price:600000,notes:''},
+  {id:'p07',vendor:'Sterexa',name:'Core Air Sampler',sku:'STX.AS.02',price:560000,notes:'No TASMS/WiFi'},
+  {id:'p08',vendor:'Sterexa',name:'Core Lite Air Sampler',sku:'STX.AS.01',price:300000,notes:''},
+  {id:'p09',vendor:'Acculize',name:'BET 96 PLUS',sku:'ACZ-96P',price:350000,notes:'Dry-bath incubator'},
+  {id:'p10',vendor:'Acculize',name:'Smart',sku:'',price:0,notes:''},
+  {id:'p11',vendor:'Acculize',name:'Incu-BI',sku:'',price:0,notes:''},
+  {id:'p12',vendor:'Cytiva',name:'Sentino Pump',sku:'13186',price:225000,notes:''},
+  {id:'p13',vendor:'Cytiva',name:'Gamma 0.45uM 47MM',sku:'66191',price:0,notes:'200/PK'},
+  {id:'p14',vendor:'Cytiva',name:'ME Membrane',sku:'4804',price:0,notes:''},
+  {id:'p15',vendor:'Terragene',name:'BT20',sku:'',price:0,notes:'BI/CI'},
+  {id:'p16',vendor:'Neutron Technologies',name:'Neutro BCMS CFR+',sku:'',price:0,notes:'Microbial air sampler'},
+];}
+function plabel(p){return p.vendor+' \u2014 '+p.name;}
+function allLabels(){return MASTER.products.map(plabel);}
+function adn(a){return a.unit?a.name+' \u2014 '+a.unit:a.name;}
+function myAccts(){return MASTER.accounts.filter(a=>a.status!=='inactive'&&(a.assignedTo||[]).includes(CU.id));}
+// Contacts visible to current rep at a given account display name
+function myContactsAt(acctDn){return MASTER.contacts.filter(c=>c.status!=='inactive'&&c.account===acctDn&&(c.visibleTo||[]).includes(CU.id));}
+// All contacts at an account (admin view)
+function allContactsAt(acctDn){return MASTER.contacts.filter(c=>c.account===acctDn);}
+function pending(){return(MASTER.suggestions||[]).filter(s=>s.status==='pending');}
+function emptyRep(uid){
+  
+  return{opps:[],acts:[],visits:[],service:[],events:[]};
+}
+
+// ── LAUNCH ──
+function launch(){
+  document.getElementById('login-screen').style.display='none';
+  if(CU.role==='both'){document.getElementById('mode-screen').style.display='flex';return;}
+  launchAs(CU.role==='management'?'mgmt':'rep');
+}
+function launchAs(mode){
+  document.getElementById('mode-screen').style.display='none';CV=mode;
+  const app=document.getElementById('app');app.style.display='flex';app.style.flexDirection='column';app.style.minHeight='100vh';
+  const av=document.getElementById('tav');av.style.background=CU.color+'22';av.style.color=CU.color;av.textContent=CU.av;
+  document.getElementById('tname').textContent=CU.name.split(' ')[0];
+  const rb=document.getElementById('trole');rb.className='rbadge '+(mode==='mgmt'?'rb-mgmt':'rb-rep');rb.textContent=mode==='mgmt'?'Manager':'Rep';
+  document.getElementById('t-title').textContent=mode==='mgmt'?'Sri Indra CRM \u2014 Team':'Sri Indra CRM \u2014 My';
+  if(CU.role==='both')document.getElementById('sw-btn').classList.remove('hidden');
+  buildNav();go('dashboard');
+  if(mode==='rep')document.getElementById('fab').classList.remove('hidden');
+  else document.getElementById('fab').classList.add('hidden');
+}
+function switchMode(){document.getElementById('app').style.display='none';document.getElementById('fab').classList.add('hidden');document.getElementById('mode-screen').style.display='flex';}
+
+// ── NAV ──
+const IC={
+  dash:'<path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/>',
+  pipe:'<path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0H3"/>',
+  opp:'<path stroke-linecap="round" stroke-linejoin="round" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0112 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 01-.673-.38m0 0A2.18 2.18 0 013 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m7.5 0V5.25A2.25 2.25 0 0013.5 3h-3a2.25 2.25 0 00-2.25 2.25v.894m7.5 0a48.667 48.667 0 00-7.5 0M12 12.75h.008v.008H12v-.008z"/>',
+  acct:'<path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21"/>',
+  cont:'<path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/>',
+  act:'<path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z"/>',
+  plan:'<path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/>',
+  pva:'<path stroke-linecap="round" stroke-linejoin="round" d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0020.25 18V6A2.25 2.25 0 0018 3.75H6A2.25 2.25 0 003.75 6v12A2.25 2.25 0 006 20.25z"/>',
+  reps:'<path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/>',
+  events:'<path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6"/>',
+  visit:'<path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5m-9-6h.008v.008H12v-.008zM12 15h.008v.008H12V15zm0 2.25h.008v.008H12v-.008zM9.75 15h.008v.008H9.75V15zm0 2.25h.008v.008H9.75v-.008zM7.5 15h.008v.008H7.5V15zm0 2.25h.008v.008H7.5v-.008zm6.75-4.5h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V15zm0 2.25h.008v.008h-.008v-.008zm2.25-4.5h.008v.008H16.5v-.008zm0 2.25h.008v.008H16.5V15z"/>',
+  svc:'<path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.486-6.336l-3.276 3.277a3.004 3.004 0 01-2.25-2.25l3.276-3.276a4.5 4.5 0 00-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437l1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008z"/>',
+  admin:'<path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>',
+};
+function navItems(){
+  const pb=pending().length;
+  if(CV==='mgmt')return[
+    {id:'dashboard',l:'Consolidated',ic:IC.dash},
+    {id:'reps',l:'By rep',ic:IC.reps},
+    {id:'all-opps',l:'All opps',ic:IC.opp},
+    {id:'pva-mgmt',l:'Plan vs Actual',ic:IC.pva},
+    {id:'all-activity',l:'All activity',ic:IC.act},
+    {id:'admin',l:'Master data'+(pb?` (${pb})` :''),ic:IC.admin},
+    {id:'team-visits',l:'Team visits',ic:IC.visit},
+    {id:'team-service',l:'Service log',ic:IC.svc},
+    {id:'team-events',l:'Events',ic:IC.events},
+  ];
+  return[
+    {id:'dashboard',l:'Dashboard',ic:IC.dash},
+    {id:'pipeline',l:'Pipeline',ic:IC.pipe},
+    {id:'opps',l:'Opportunities',ic:IC.opp},
+    {id:'accounts',l:'Accounts',ic:IC.acct},
+    {id:'contacts',l:'Contacts',ic:IC.cont},
+    {id:'activity',l:'Activity',ic:IC.act},
+    {id:'plan',l:'Plan',ic:IC.plan},
+    {id:'pva',l:'Plan vs Actual',ic:IC.pva},
+    {id:'visits',l:'Visit tracker',ic:IC.visit},
+    {id:'events',l:'Events',ic:IC.events},
+    {id:'service',l:'Service log',ic:IC.svc},
+  ];
+}
+function buildNav(){
+  const items=navItems();
+  document.getElementById('sidebar').innerHTML=items.map(i=>`<button class="sni${CP===i.id?' on':''}" onclick="go('${i.id}')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor">${i.ic}</svg>${i.l}</button>`).join('');
+  document.getElementById('bnav').innerHTML=items.slice(0,5).map(i=>`<button class="bni${CP===i.id?' on':''}" onclick="go('${i.id}')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor">${i.ic}</svg>${i.l.replace(/ \(\d+\)/,'')}</button>`).join('');
+}
+function go(page){
+  CP=page;buildNav();
+  const mc=document.getElementById('main');mc.innerHTML='';
+  const d=document.createElement('div');d.className='page on';mc.appendChild(d);
+  ({dashboard:()=>CV==='mgmt'?pgMD(d):pgRD(d),pipeline:()=>pgPL(d),opps:()=>pgOP(d),accounts:()=>pgAC(d),contacts:()=>pgCO(d),activity:()=>pgAT(d),plan:()=>pgPN(d),pva:()=>pgPV(d,CU.id),reps:()=>pgReps(d),'all-opps':()=>pgAO(d),'all-activity':()=>pgAA(d),'pva-mgmt':()=>pgPVM(d),admin:()=>pgAdmin(d),visits:()=>pgVisits(d,CU.id),service:()=>pgService(d,CU.id),'team-visits':()=>pgTeamVisits(d),'team-service':()=>pgTeamService(d),'events':()=>pgEvents(d,CU.id),'team-events':()=>pgTeamEvents(d)}[page]||(() =>CV==='mgmt'?pgMD(d):pgRD(d)))();
+}
+
+// ── HELPERS ──
+const td=()=>new Date().toISOString().slice(0,10);
+const ds=d=>d?Math.max(0,Math.floor((new Date()-new Date(d))/86400000)):0;
+const inr=v=>'&#8377;'+Math.round(Number(v)||0).toLocaleString('en-IN');
+const sc=s=>SCLR[s]||'#9ca3af';
+const md=()=>DD[CU.id]||(DD[CU.id]={opps:[],acts:[],plan:[]});
+const aOpps=()=>REPS().flatMap(u=>(DD[u.id]?.opps||[]).map(o=>({...o,rId:u.id,rName:u.name,rClr:u.color,rAv:u.av})));
+const aActs=()=>REPS().flatMap(u=>(DD[u.id]?.acts||[]).map(a=>({...a,rId:u.id,rName:u.name})));
+const aPlan=()=>REPS().flatMap(u=>(DD[u.id]?.plan||[]).map(p=>({...p,rId:u.id,rName:u.name})));
+function spill(s){return`<span class="ps" style="background:${sc(s)}22;color:${sc(s)};border:1px solid ${sc(s)}44">${s}</span>`;}
+function dpill(sd){const d=ds(sd);return`<span class="pill ${d>30?'pw':'pok'}">${d}d</span>`;}
+function gid(uid){return'OPP-'+new Date().getFullYear()+'-'+String((DD[uid]?.opps||[]).length+1).padStart(4,'0');}
+function esc(o){return JSON.stringify(JSON.stringify(o));}
+function isDupA(name,unit,ex){const dn=(unit?name+' \u2014 '+unit:name).toLowerCase();return MASTER.accounts.some((a,i)=>i!==ex&&adn(a).toLowerCase()===dn);}
+function isDupC(fn,ln,acct,ex){const full=(fn+' '+ln).trim().toLowerCase();return MASTER.contacts.some((c,i)=>i!==ex&&c.name.toLowerCase()===full&&c.account===acct);}
+
+// ── VENDOR CHART ──
+function vchart(opps){
+  const bV={},bP={};
+  opps.filter(o=>!['Won','Lost','On Hold'].includes(o.stage)).forEach(o=>{
+    const v=o.product.split(' \u2014 ')[0];
+    if(!bV[v])bV[v]={val:0,cnt:0};bV[v].val+=o.value||0;bV[v].cnt++;
+    if(!bP[o.product])bP[o.product]={val:0,cnt:0};bP[o.product].val+=o.value||0;bP[o.product].cnt++;
+  });
+  const vE=Object.entries(bV).sort((a,b)=>b[1].val-a[1].val);
+  const pE=Object.entries(bP).sort((a,b)=>b[1].val-a[1].val);
+  const vm=Math.max(...vE.map(e=>e[1].val),1),pm=Math.max(...pE.map(e=>e[1].val),1);
+  function bars(ents,mx,cf){
+    if(!ents.length)return`<div style="font-size:12px;color:var(--gray-400);padding:8px 0">No open opportunities</div>`;
+    return ents.map(([l,{val,cnt}])=>`<div class="cbr"><div class="clbl" title="${l}">${l}</div><div class="ctrack"><div class="cbar" style="width:${Math.round(val/mx*100)}%;background:${cf(l)}"><span class="cbar-lbl">${inr(val)}</span></div></div><div class="ccnt">${cnt}&times;</div></div>`).join('');
+  }
+  function tbl(ents,tot){return`<table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:8px"><thead><tr><th style="text-align:left;padding:5px 8px;font-size:10px;font-weight:700;color:var(--gray-500);border-bottom:1px solid var(--gray-200)">Name</th><th style="text-align:right;padding:5px 8px;font-size:10px;font-weight:700;color:var(--gray-500);border-bottom:1px solid var(--gray-200)">Value</th><th style="text-align:right;padding:5px 8px;font-size:10px;font-weight:700;color:var(--gray-500);border-bottom:1px solid var(--gray-200)">Opps</th><th style="text-align:right;padding:5px 8px;font-size:10px;font-weight:700;color:var(--gray-500);border-bottom:1px solid var(--gray-200)">Share</th></tr></thead><tbody>${ents.map(([l,{val,cnt}])=>`<tr><td style="padding:5px 8px">${l}</td><td style="padding:5px 8px;text-align:right;font-weight:700;color:var(--blue)">${inr(val)}</td><td style="padding:5px 8px;text-align:right">${cnt}</td><td style="padding:5px 8px;text-align:right;color:var(--gray-500)">${tot?Math.round(val/tot*100):0}%</td></tr>`).join('')}</tbody></table>`;}
+  const vt=vE.reduce((s,e)=>s+e[1].val,0),pt=pE.reduce((s,e)=>s+e[1].val,0);
+  return`<div style="display:grid;gap:12px"><div class="chart-wrap"><div style="font-size:11px;font-weight:700;color:var(--gray-700);text-transform:uppercase;letter-spacing:.4px;margin-bottom:10px">By vendor</div>${bars(vE,vm,l=>VCLR[l]||'#1a56db')}${tbl(vE,vt)}</div><div class="chart-wrap"><div style="font-size:11px;font-weight:700;color:var(--gray-700);text-transform:uppercase;letter-spacing:.4px;margin-bottom:10px">By product</div>${bars(pE,pm,l=>VCLR[l.split(' \u2014 ')[0]]||'#1a56db')}${tbl(pE,pt)}</div></div>`;
+}
+
+// ── REP DASHBOARD ──
+function pgRD(div){
+  const data=md(),opps=data.opps||[],acts=data.acts||[];
+  const open=opps.filter(o=>!['Won','Lost','On Hold'].includes(o.stage));
+  const tot=open.reduce((s,o)=>s+(o.value||0),0);
+  const wt=open.reduce((s,o)=>s+((o.value||0)*(PROB[o.stage]||0)/100),0);
+  const won=opps.filter(o=>o.stage==='Won').reduce((s,o)=>s+(o.value||0),0);
+  const sv={};ACTIVE.forEach(s=>{sv[s]=opps.filter(o=>o.stage===s).reduce((x,o)=>x+(o.value||0),0);});
+  const mx=Math.max(...Object.values(sv),1);
+  div.innerHTML=`<div class="metrics"><div class="mc"><div class="mc-lbl">My pipeline</div><div class="mc-val" style="color:var(--blue)">${inr(tot)}</div></div><div class="mc"><div class="mc-lbl">Weighted</div><div class="mc-val">${inr(Math.round(wt))}</div></div><div class="mc"><div class="mc-lbl">Open opps</div><div class="mc-val">${open.length}</div></div><div class="mc"><div class="mc-lbl">Won YTD</div><div class="mc-val" style="color:var(--green)">${inr(won)}</div></div><div class="mc"><div class="mc-lbl">Activities</div><div class="mc-val" style="color:var(--amber)">${acts.length}</div></div></div>
+  <div class="sec-hd" style="margin-top:0"><span class="sec-title">Stage funnel</span></div>
+  ${ACTIVE.map(s=>`<div class="frow"><div class="fl">${s}</div><div class="ft"><div class="ff" style="width:${Math.round((sv[s]||0)/mx*100)}%;background:${sc(s)}"></div></div><div class="fv">${sv[s]?inr(sv[s]):''}</div></div>`).join('')}
+  <div class="sec-hd"><span class="sec-title">Vendor &amp; product pipeline</span></div>${vchart(opps)}
+  <div class="sec-hd"><span class="sec-title">Open opportunities</span><button class="btn bp bsm" onclick="openOppM()">+ Add</button></div>
+  <div class="tbl-wrap"><table><thead><tr><th>Account</th><th>Product</th><th>Stage</th><th>Value</th><th>Days</th></tr></thead><tbody>${open.map(o=>`<tr style="cursor:pointer" onclick="openOppM(${esc(o)})"><td class="tdx">${o.account}</td><td class="tdx">${o.product}</td><td>${spill(o.stage)}</td><td style="font-weight:700;color:var(--blue)">${inr(o.value)}</td><td>${dpill(o.stageDate)}</td></tr>`).join('')}</tbody></table></div>`;
+}
+
+// ── PIPELINE KANBAN ──
+function pgPL(div){
+  const opps=(md().opps||[]).filter(o=>ACTIVE.includes(o.stage));
+  div.innerHTML=`<div class="kb-wrap"><div class="kb">${ACTIVE.map(st=>{const cards=opps.filter(o=>o.stage===st);return`<div class="lane"><div class="lane-hd" style="background:${sc(st)}22;color:${sc(st)}">${st}<span style="background:${sc(st)}33;padding:1px 5px;border-radius:20px;font-size:10px">${cards.length}</span></div><div class="lane-body">${cards.map(o=>`<div class="kcard" onclick="openOppM(${esc(o)})"><div class="kca">${o.account}</div><div class="kcp">${o.product}</div><div class="kcf"><span class="kcv">${inr(o.value)}</span>${dpill(o.stageDate)}</div></div>`).join('')}</div></div>`;}).join('')}</div></div>`;
+}
+
+// ── OPPORTUNITIES ──
+function pgOP(div){
+  div.innerHTML=`<div class="tb"><input type="text" id="oq" placeholder="Search\u2026" oninput="renderO()" style="width:140px"><select id="osf" onchange="renderO()"><option value="">All stages</option>${STAGES.map(s=>`<option>${s}</option>`).join('')}</select><div class="sp"></div><button class="btn bg" onclick="expC(CU.id)">Export</button><label class="btn bg" style="cursor:pointer">Import<input type="file" accept=".csv" style="display:none" onchange="impC(event,CU.id)"></label><button class="btn bp" onclick="openOppM()">+ Add</button></div>
+  <div class="tbl-wrap"><table><thead><tr><th>ID</th><th>Account</th><th>Product</th><th>Stage</th><th>Value</th><th>Close</th><th>Days</th><th></th></tr></thead><tbody id="otb"></tbody></table></div>`;
+  window.renderO=()=>{const q=(document.getElementById('oq')?.value||'').toLowerCase(),sf=document.getElementById('osf')?.value;let rows=[...(md().opps||[])];if(q)rows=rows.filter(o=>(o.account+o.product+o.id).toLowerCase().includes(q));if(sf)rows=rows.filter(o=>o.stage===sf);document.getElementById('otb').innerHTML=rows.map(o=>`<tr><td style="font-size:10px;color:var(--gray-400)">${o.id}</td><td class="tdx">${o.account}</td><td class="tdx">${o.product}</td><td>${spill(o.stage)}</td><td style="font-weight:700;color:var(--blue)">${inr(o.value)}</td><td style="font-size:11px">${o.close||''}</td><td>${dpill(o.stageDate)}</td><td style="white-space:nowrap"><button class="btn bg bsm" onclick="openOppM(${esc(o)})">Edit</button> <button class="btn bd bsm" onclick="delO('${o.id}')">Del</button></td></tr>`).join('');};
+  window.delO=id=>{if(!confirm('Delete?'))return;const d=md();d.opps=(d.opps||[]).filter(o=>o.id!==id);saveDrive(CU.id);renderO();};
+  renderO();
+}
+
+// ── ACCOUNTS (rep - read only + suggest) ──
+function pgAC(div){
+  const accts=myAccts();
+  const myS=MASTER.suggestions.filter(s=>s.suggestedBy===CU.id);
+  div.innerHTML=`<div class="info-box">Accounts are managed by admin. You can suggest additions — Maruti reviews before they appear.</div>
+  <div class="tb"><div class="sp"></div><button class="btn bp" onclick="openSugA()">+ Suggest account</button></div>
+  <div class="tbl-wrap"><table><thead><tr><th>Company</th><th>Unit / Site</th><th>Tier</th><th>Segment</th><th>City</th><th>State</th><th>Type</th></tr></thead><tbody>${accts.map(a=>`<tr><td style="font-weight:600">${a.name}</td><td style="font-size:11px">${a.unit||'\u2014'}</td><td><span class="pill pi">${a.tier||''}</span></td><td class="tdx" style="font-size:11px">${a.segment||''}</td><td style="font-size:11px">${a.city||''}</td><td style="font-size:11px">${a.state||''}</td><td style="font-size:11px">${a.type||''}</td></tr>`).join('')}</tbody></table></div>
+  ${myS.length?`<div style="margin-top:14px"><div class="sec-title" style="margin-bottom:8px">Your suggestions</div><div class="tbl-wrap"><table><thead><tr><th>Type</th><th>Name</th><th>Date</th><th>Status</th></tr></thead><tbody>${myS.map(s=>`<tr><td><span class="pill pi">${s.type}</span></td><td class="tdx">${s.type==='account'?adn(s.data):s.data.name}</td><td style="font-size:11px">${s.date}</td><td><span class="sbadge sb-${s.status}">${s.status}</span></td></tr>`).join('')}</tbody></table></div></div>`:''}`;
+}
+
+// ── CONTACTS (rep - sees only their explicitly assigned contacts) ──
+function pgCO(div){
+  const accts=myAccts().map(adn);
+  div.innerHTML=`<div class="info-box">You see only contacts assigned to you. To add a contact at an account, use "Suggest contact".</div>
+  <div class="tb"><select id="caf" onchange="renderCO()"><option value="">All my accounts</option>${accts.map(a=>`<option>${a}</option>`).join('')}</select><div class="sp"></div><button class="btn bp" onclick="openSugC()">+ Suggest contact</button></div>
+  <div class="tbl-wrap"><table><thead><tr><th>Name</th><th>Account</th><th>Title</th><th>Dept</th><th>Role</th><th>Phone</th><th>Email</th></tr></thead><tbody id="ctb"></tbody></table></div>`;
+  window.renderCO=()=>{
+    const af=document.getElementById('caf')?.value;
+    const myAcctDns=myAccts().map(adn);
+    let rows=MASTER.contacts.filter(c=>c.status!=='inactive'&&myAcctDns.includes(c.account)&&(c.visibleTo||[]).includes(CU.id));
+    if(af)rows=rows.filter(c=>c.account===af);
+    document.getElementById('ctb').innerHTML=rows.map(c=>`<tr><td style="font-weight:600">${c.name}</td><td class="tdx">${c.account}</td><td class="tdx" style="font-size:11px">${c.title||''}</td><td class="tdx" style="font-size:11px">${c.dept||''}</td><td><span class="pill pi" style="font-size:9px">${c.role||''}</span></td><td style="font-size:11px">${c.phone||''}</td><td style="font-size:11px;color:var(--blue)">${c.email||''}</td></tr>`).join('');
+  };renderCO();
+}
+
+// ── ACTIVITY ──
+function pgAT(div){
+  div.innerHTML=`<div class="tb"><select id="atf" onchange="renderAT()"><option value="">All types</option>${ACT_TYPES.map(t=>`<option>${t}</option>`).join('')}</select><div class="sp"></div><button class="btn bp" onclick="openActModal()">+ Log</button></div>
+  <div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Account</th><th>Contact</th><th>Type</th><th>Funnel</th><th>Product</th><th>Notes</th><th>Next action</th></tr></thead><tbody id="atb"></tbody></table></div>`;
+  window.renderAT=()=>{const tf=document.getElementById('atf')?.value;let rows=[...(md().acts||[])].sort((a,b)=>b.date.localeCompare(a.date));if(tf)rows=rows.filter(a=>a.type===tf);document.getElementById('atb').innerHTML=rows.map(a=>`<tr><td style="font-size:11px">${a.date}</td><td class="tdx">${a.account||'\u2014'}</td><td class="tdx" style="font-size:11px">${a.contact||''}</td><td><span class="pill pi">${a.type}</span></td><td style="font-size:11px">${a.funnel||''}</td><td class="tdx" style="font-size:11px">${a.product||''}</td><td class="tdx" style="font-size:11px;color:var(--gray-500)">${a.notes||''}</td><td class="tdx" style="font-size:11px">${a.nextAction||''}</td></tr>`).join('');};renderAT();
+}
+
+// ── PLAN ──
+function pgPN(div){
+  div.innerHTML=`<div class="tb"><div class="sp"></div><button class="btn bp" onclick="openPlanM()">+ Add</button></div>
+  <div class="tbl-wrap"><table><thead><tr><th>Month</th><th>Account \u2014 Contact</th><th>Product</th><th>Type</th><th>Planned</th><th>Actual</th><th>Var</th><th></th></tr></thead><tbody>${(md().plan||[]).map((p,i)=>{const v=(p.actual||0)-(p.planned||0);return`<tr><td style="font-size:11px">${p.month||''}</td><td class="tdx">${p.contact||''}</td><td class="tdx" style="font-size:11px">${p.product||''}</td><td><span class="pill pi">${p.type||''}</span></td><td style="font-weight:700">${p.planned||0}</td><td>${p.actual||0}</td><td><span class="pill ${v>=0?'pok':'pw'}">${v>=0?'+':''}${v}</span></td><td><button class="btn bg bsm" onclick="openPlanM(${i})">Edit</button> <button class="btn bd bsm" onclick="delP(${i})">Del</button></td></tr>`;}).join('')}</tbody></table></div>`;
+  window.delP=i=>{if(!confirm('Delete?'))return;const d=md();(d.plan||[]).splice(i,1);saveDrive(CU.id);pgPN(div);};
+}
+
+// ── PLAN VS ACTUAL ──
+function pgPV(div,uid){
+  const plan=DD[uid]?.plan||[],acts=DD[uid]?.acts||[];
+  if(!plan.length){div.innerHTML=`<div style="padding:20px;color:var(--gray-400);font-size:13px">No plan entries yet.</div>`;return;}
+  div.innerHTML=`<div class="tbl-wrap"><table><thead><tr><th>Month</th><th>Account \u2014 Contact</th><th>Product</th><th>Type</th><th>Planned</th><th>Actual</th><th>Attainment</th><th>Progress</th></tr></thead><tbody>${plan.map(p=>{const ac=acts.filter(a=>a.date?.slice(0,7)===p.month&&a.type===p.type).length;const pct=p.planned?Math.min(Math.round(ac/p.planned*100),200):0;const clr=pct>=100?'var(--blue)':pct>=60?'var(--amber)':'var(--red)';return`<tr><td style="font-size:11px">${p.month||''}</td><td class="tdx">${p.contact||''}</td><td class="tdx" style="font-size:11px">${p.product||''}</td><td><span class="pill pi">${p.type||''}</span></td><td style="font-weight:700">${p.planned||0}</td><td>${ac}</td><td><span class="pill ${pct>=100?'pok':pct>=60?'pw':'pr'}">${pct}%</span></td><td style="min-width:80px"><div style="background:var(--gray-100);border-radius:20px;height:14px;overflow:hidden"><div style="width:${Math.min(pct,100)}%;height:100%;background:${clr};border-radius:20px"></div></div></td></tr>`;}).join('')}</tbody></table></div>`;
+}
+
+// ── MGMT DASHBOARD ──
+function pgMD(div){
+  const opps=aOpps(),acts=aActs();
+  const open=opps.filter(o=>!['Won','Lost','On Hold'].includes(o.stage));
+  const tot=open.reduce((s,o)=>s+(o.value||0),0);
+  const wt=open.reduce((s,o)=>s+((o.value||0)*(PROB[o.stage]||0)/100),0);
+  const won=opps.filter(o=>o.stage==='Won').reduce((s,o)=>s+(o.value||0),0);
+  const lost=opps.filter(o=>o.stage==='Lost').reduce((s,o)=>s+(o.value||0),0);
+  const sv={};ACTIVE.forEach(s=>{sv[s]=opps.filter(o=>o.stage===s).reduce((x,o)=>x+(o.value||0),0);});
+  const mx=Math.max(...Object.values(sv),1);
+  const rr=REPS().map(u=>{const uo=DD[u.id]?.opps||[],ua=DD[u.id]?.acts||[];const uop=uo.filter(o=>!['Won','Lost','On Hold'].includes(o.stage));const ut=uop.reduce((s,o)=>s+(o.value||0),0);const uw=uop.reduce((s,o)=>s+((o.value||0)*(PROB[o.stage]||0)/100),0);const uwon=uo.filter(o=>o.stage==='Won').reduce((s,o)=>s+(o.value||0),0);return`<tr><td><div style="display:flex;align-items:center;gap:7px"><div class="av" style="background:${u.color}22;color:${u.color}">${u.av}</div>${u.name}</div></td><td style="font-weight:700;color:var(--blue)">${inr(ut)}</td><td>${inr(Math.round(uw))}</td><td>${uop.length}</td><td style="color:var(--green)">${inr(uwon)}</td><td>${ua.length}</td></tr>`;}).join('');
+  div.innerHTML=`<div class="metrics"><div class="mc"><div class="mc-lbl">Team pipeline</div><div class="mc-val" style="color:var(--blue)">${inr(tot)}</div></div><div class="mc"><div class="mc-lbl">Weighted</div><div class="mc-val">${inr(Math.round(wt))}</div></div><div class="mc"><div class="mc-lbl">Open opps</div><div class="mc-val">${open.length}</div></div><div class="mc"><div class="mc-lbl">Won YTD</div><div class="mc-val" style="color:var(--green)">${inr(won)}</div></div><div class="mc"><div class="mc-lbl">Lost YTD</div><div class="mc-val" style="color:var(--red)">${inr(lost)}</div></div><div class="mc"><div class="mc-lbl">Activities</div><div class="mc-val" style="color:var(--amber)">${acts.length}</div></div></div>
+  <div class="sec-hd" style="margin-top:0"><span class="sec-title">Stage funnel \u2014 all reps</span></div>
+  ${ACTIVE.map(s=>`<div class="frow"><div class="fl">${s}</div><div class="ft"><div class="ff" style="width:${Math.round((sv[s]||0)/mx*100)}%;background:${sc(s)}"></div></div><div class="fv">${sv[s]?inr(sv[s]):''}</div></div>`).join('')}
+  <div class="sec-hd"><span class="sec-title">Vendor &amp; product pipeline \u2014 all reps</span></div>${vchart(opps)}
+  <div class="sec-hd"><span class="sec-title">Rep performance</span></div>
+  <div class="tbl-wrap"><table><thead><tr><th>Rep</th><th>Pipeline</th><th>Weighted</th><th>Open opps</th><th>Won YTD</th><th>Activities</th></tr></thead><tbody>${rr}</tbody></table></div>`;
+}
+
+// ── MGMT BY REP ──
+function pgReps(div){
+  div.innerHTML=`<div class="rep-grid">${REPS().map(u=>{const uo=DD[u.id]?.opps||[];const op=uo.filter(o=>!['Won','Lost','On Hold'].includes(o.stage));const tot=op.reduce((s,o)=>s+(o.value||0),0);return`<div class="rep-card${SDRILL===u.id?' sel':''}" onclick="drt('${u.id}')"><div class="rav" style="background:${u.color}22;color:${u.color}">${u.av}</div><div style="font-size:13px;font-weight:700;margin-bottom:2px">${u.name}</div><div style="font-size:11px;color:var(--gray-400)">${op.length} open</div><div style="font-size:13px;font-weight:700;color:var(--blue);margin-top:3px">${inr(tot)}</div></div>`;}).join('')}</div><div id="drill"></div>`;
+  if(SDRILL)drillR(SDRILL,document.getElementById('drill'));
+}
+window.drt=uid=>{SDRILL=SDRILL===uid?null:uid;pgReps(document.querySelector('.page.on'));};
+function drillR(uid,cont){
+  const u=USERS.find(x=>x.id===uid);const opps=DD[uid]?.opps||[],acts=DD[uid]?.acts||[];const open=opps.filter(o=>!['Won','Lost','On Hold'].includes(o.stage));
+  cont.innerHTML=`<div style="border-top:1px solid var(--gray-200);padding-top:12px"><div style="display:flex;align-items:center;gap:9px;margin-bottom:11px"><div class="av" style="background:${u.color}22;color:${u.color};width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700">${u.av}</div><span style="font-size:14px;font-weight:700">${u.name}</span></div>
+  <div class="sec-hd" style="margin-top:0"><span class="sec-title">Vendor &amp; product pipeline</span></div>${vchart(opps)}
+  <div class="sec-hd"><span class="sec-title">Open opportunities</span></div>
+  <div class="tbl-wrap" style="margin-bottom:12px"><table><thead><tr><th>Account</th><th>Product</th><th>Stage</th><th>Value</th><th>Close</th><th>Days</th></tr></thead><tbody>${open.map(o=>`<tr><td class="tdx">${o.account}</td><td class="tdx">${o.product}</td><td>${spill(o.stage)}</td><td style="font-weight:700;color:var(--blue)">${inr(o.value)}</td><td style="font-size:11px">${o.close||''}</td><td>${dpill(o.stageDate)}</td></tr>`).join('')}</tbody></table></div>
+  <div class="sec-hd"><span class="sec-title">Recent activity</span></div>
+  <div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Account</th><th>Contact</th><th>Type</th><th>Notes</th></tr></thead><tbody>${[...acts].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,15).map(a=>`<tr><td style="font-size:11px">${a.date}</td><td class="tdx">${a.account||'\u2014'}</td><td class="tdx" style="font-size:11px">${a.contact||''}</td><td><span class="pill pi">${a.type}</span></td><td class="tdx" style="font-size:11px;color:var(--gray-500)">${a.notes||''}</td></tr>`).join('')}</tbody></table></div></div>`;
+}
+
+// ── MGMT ALL OPPS ──
+function pgAO(div){
+  div.innerHTML=`<div class="tb"><input type="text" id="mq" placeholder="Search\u2026" oninput="renderAO()" style="width:140px"><select id="mrf" onchange="renderAO()"><option value="">All reps</option>${REPS().map(u=>`<option value="${u.id}">${u.name}</option>`).join('')}</select><select id="msf" onchange="renderAO()"><option value="">All stages</option>${STAGES.map(s=>`<option>${s}</option>`).join('')}</select><div class="sp"></div><button class="btn bg" onclick="expC('all')">Export all</button></div>
+  <div class="tbl-wrap"><table><thead><tr><th>ID</th><th>Account</th><th>Product</th><th>Stage</th><th>Value</th><th>Rep</th><th>Days</th></tr></thead><tbody id="aotb"></tbody></table></div>`;
+  window.renderAO=()=>{const q=(document.getElementById('mq')?.value||'').toLowerCase(),rf=document.getElementById('mrf')?.value,sf=document.getElementById('msf')?.value;let data=aOpps();if(q)data=data.filter(o=>(o.account+o.product+o.id).toLowerCase().includes(q));if(rf)data=data.filter(o=>o.rId===rf);if(sf)data=data.filter(o=>o.stage===sf);document.getElementById('aotb').innerHTML=data.map(o=>`<tr><td style="font-size:10px;color:var(--gray-400)">${o.id}</td><td class="tdx">${o.account}</td><td class="tdx">${o.product}</td><td>${spill(o.stage)}</td><td style="font-weight:700;color:var(--blue)">${inr(o.value)}</td><td><div style="display:flex;align-items:center;gap:5px"><div class="av" style="background:${o.rClr}22;color:${o.rClr};width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px">${o.rAv}</div>${o.rName}</div></td><td>${dpill(o.stageDate)}</td></tr>`).join('');};renderAO();
+}
+
+// ── MGMT ALL ACTIVITY ──
+function pgAA(div){
+  div.innerHTML=`<div class="tb"><select id="mar" onchange="renderAA()"><option value="">All reps</option>${REPS().map(u=>`<option value="${u.id}">${u.name}</option>`).join('')}</select><select id="mat" onchange="renderAA()"><option value="">All types</option>${ACT_TYPES.map(t=>`<option>${t}</option>`).join('')}</select></div>
+  <div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Rep</th><th>Account</th><th>Contact</th><th>Type</th><th>Funnel</th><th>Product</th><th>Notes</th></tr></thead><tbody id="aatb"></tbody></table></div>`;
+  window.renderAA=()=>{const rf=document.getElementById('mar')?.value,tf=document.getElementById('mat')?.value;let data=aActs().sort((a,b)=>b.date.localeCompare(a.date));if(rf)data=data.filter(a=>a.rId===rf);if(tf)data=data.filter(a=>a.type===tf);document.getElementById('aatb').innerHTML=data.map(a=>`<tr><td style="font-size:11px">${a.date}</td><td style="font-size:11px">${a.rName}</td><td class="tdx">${a.account||'\u2014'}</td><td class="tdx" style="font-size:11px">${a.contact||''}</td><td><span class="pill pi">${a.type}</span></td><td style="font-size:11px">${a.funnel||''}</td><td class="tdx" style="font-size:11px">${a.product||''}</td><td class="tdx" style="font-size:11px;color:var(--gray-500)">${a.notes||''}</td></tr>`).join('');};renderAA();
+}
+
+// ── MGMT PLAN VS ACTUAL ──
+function pgPVM(div){
+  div.innerHTML=`<div class="tb"><select id="pvr" onchange="renderPVM()"><option value="">All reps (consolidated)</option>${REPS().map(u=>`<option value="${u.id}">${u.name}</option>`).join('')}</select></div><div id="pvc"></div>`;
+  window.renderPVM=()=>{const rf=document.getElementById('pvr')?.value,cont=document.getElementById('pvc');if(rf){pgPV(cont,rf);return;}const plan=aPlan(),acts=aActs();if(!plan.length){cont.innerHTML=`<div style="padding:20px;color:var(--gray-400);font-size:13px">No plan entries yet.</div>`;return;}cont.innerHTML=`<div class="tbl-wrap"><table><thead><tr><th>Rep</th><th>Month</th><th>Account \u2014 Contact</th><th>Product</th><th>Type</th><th>Planned</th><th>Actual</th><th>Attainment</th></tr></thead><tbody>${plan.map(p=>{const u=USERS.find(x=>x.id===p.rId);const ac=acts.filter(a=>a.rId===p.rId&&a.date?.slice(0,7)===p.month&&a.type===p.type).length;const pct=p.planned?Math.min(Math.round(ac/p.planned*100),200):0;return`<tr><td><div style="display:flex;align-items:center;gap:5px"><div class="av" style="background:${u?.color||'#ccc'}22;color:${u?.color||'#888'};width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px">${u?.av||'?'}</div>${u?.name||p.rId}</div></td><td style="font-size:11px">${p.month||''}</td><td class="tdx">${p.contact||''}</td><td class="tdx" style="font-size:11px">${p.product||''}</td><td><span class="pill pi">${p.type||''}</span></td><td style="font-weight:700">${p.planned||0}</td><td>${ac}</td><td><span class="pill ${pct>=100?'pok':pct>=60?'pw':'pr'}">${pct}%</span></td></tr>`;}).join('')}</tbody></table></div>`;};renderPVM();
+}
+
+// ── ADMIN ──
+function pgAdmin(div){
+  const pb=pending().length;
+  div.innerHTML=`<div class="admin-tabs"><button class="atab on" onclick="adTab('prods',this)">Products</button><button class="atab" onclick="adTab('accts',this)">Accounts</button><button class="atab" onclick="adTab('conts',this)">Contacts</button><button class="atab" onclick="adTab('suggs',this)">Suggestions${pb?` <span style="background:var(--amber);color:white;font-size:9px;padding:1px 5px;border-radius:20px;font-weight:700">${pb}</span>`:''}</button></div><div id="adc"></div>`;
+  adTab('prods',div.querySelector('.atab'));
+}
+function adTab(tab,btn){document.querySelectorAll('.atab').forEach(b=>b.classList.remove('on'));btn.classList.add('on');const c=document.getElementById('adc');({prods:()=>rAdP(c),accts:()=>rAdA(c),conts:()=>rAdC(c),suggs:()=>rAdS(c)}[tab]||(() =>rAdP(c)))();}
+function rAdP(c){c.innerHTML=`<div class="tb"><div class="sp"></div><button class="btn bp" onclick="openPM()">+ Add product</button></div><div class="tbl-wrap"><table><thead><tr><th>Vendor</th><th>Product</th><th>SKU</th><th>Price</th><th>Notes</th><th></th></tr></thead><tbody>${MASTER.products.map((p,i)=>`<tr><td style="font-weight:600">${p.vendor}</td><td>${p.name}</td><td style="font-size:11px;color:var(--gray-500)">${p.sku||''}</td><td style="font-size:11px">${p.price?inr(p.price):''}</td><td class="tdx" style="font-size:11px;color:var(--gray-500)">${p.notes||''}</td><td style="white-space:nowrap"><button class="btn bg bsm" onclick="openPM(${i})">Edit</button> <button class="btn bd bsm" onclick="delProd(${i})">Del</button></td></tr>`).join('')}</tbody></table></div>`;window.delProd=i=>{if(!confirm('Delete?'))return;MASTER.products.splice(i,1);saveMaster();rAdP(c);};}
+function rAdA(c){c.innerHTML=`<div class="tb"><input type="text" id="aq" placeholder="Search\u2026" oninput="renderAdA()" style="width:140px"><label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--gray-500);cursor:pointer"><input type="checkbox" id="ashowInactive" onchange="renderAdA()" style="accent-color:var(--blue)"> Show inactive</label><div class="sp"></div><button class="btn bp" onclick="openAdAM()">+ Add account</button></div><div class="tbl-wrap"><table><thead><tr><th>Company</th><th>Unit / Site</th><th>Tier</th><th>Segment</th><th>City</th><th>State</th><th>Assigned to</th><th>Status</th><th></th></tr></thead><tbody id="aatb2"></tbody></table></div>`;window.renderAdA=()=>{const q=(document.getElementById('aq')?.value||'').toLowerCase();const showInact=document.getElementById('ashowInactive')?.checked;let rows=MASTER.accounts.filter(a=>(showInact||a.status!=='inactive')&&(!q||adn(a).toLowerCase().includes(q)||a.segment?.toLowerCase().includes(q)));document.getElementById('aatb2').innerHTML=rows.map((a,i)=>{const an=(a.assignedTo||[]).map(id=>USERS.find(u=>u.id===id)?.name||id).join(', ');const active=a.status!=='inactive';return`<tr style="opacity:${active?1:.55}"><td style="font-weight:600">${a.name}</td><td style="font-size:11px">${a.unit||''}</td><td><span class="pill pi">${a.tier||''}</span></td><td class="tdx" style="font-size:11px">${a.segment||''}</td><td style="font-size:11px">${a.city||''}</td><td style="font-size:11px">${a.state||''}</td><td style="font-size:11px">${an||'\u2014'}</td><td><span class="pill ${active?'pok':'pr'}">${active?'Active':'Inactive'}</span></td><td style="white-space:nowrap"><button class="btn bg bsm" onclick="openAdAM(${i})">Edit</button> <button class="btn bsm ${active?'bd':'b-ok'}" onclick="toggleAcct(${i})">${active?'Deactivate':'Activate'}</button></td></tr>`;}).join('');};renderAdA();window.delAcc=i=>{if(!confirm('Delete?'))return;MASTER.accounts.splice(i,1);saveMaster();renderAdA();};window.toggleAcct=i=>{MASTER.accounts[i].status=MASTER.accounts[i].status==='inactive'?'active':'inactive';saveMaster();renderAdA();};}
+function rAdC(c){c.innerHTML=`<div class="tb"><select id="acf2" onchange="renderAdC()"><option value="">All accounts</option>${MASTER.accounts.map(a=>`<option>${adn(a)}</option>`).join('')}</select><label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--gray-500);cursor:pointer"><input type="checkbox" id="cshowInactive" onchange="renderAdC()" style="accent-color:var(--blue)"> Show inactive</label><div class="sp"></div><button class="btn bp" onclick="openAdCM()">+ Add contact</button></div><div class="tbl-wrap"><table><thead><tr><th>Name</th><th>Account</th><th>Title</th><th>Role</th><th>Phone</th><th>Email</th><th>Visible to</th><th>Status</th><th></th></tr></thead><tbody id="actb2"></tbody></table></div>`;window.renderAdC=()=>{const af=document.getElementById('acf2')?.value;const showInactC=document.getElementById('cshowInactive')?.checked;let rows=MASTER.contacts.filter(c=>showInactC||c.status!=='inactive');if(af)rows=rows.filter(c=>c.account===af);document.getElementById('actb2').innerHTML=rows.map((c,i)=>{const vn=(c.visibleTo||[]).map(id=>USERS.find(u=>u.id===id)?.av||id).join(', ');const cactive=c.status!=='inactive';return`<tr style="opacity:${cactive?1:.55}"><td style="font-weight:600">${c.name}</td><td class="tdx">${c.account}</td><td class="tdx" style="font-size:11px">${c.title||''}</td><td><span class="pill pi" style="font-size:9px">${c.role||''}</span></td><td style="font-size:11px">${c.phone||''}</td><td style="font-size:11px;color:var(--blue)">${c.email||''}</td><td style="font-size:11px;color:var(--gray-500)">${vn||'\u2014'}</td><td><span class="pill ${cactive?'pok':'pr'}">${cactive?'Active':'Inactive'}</span></td><td style="white-space:nowrap"><button class="btn bg bsm" onclick="openAdCM(${i})">Edit</button> <button class="btn bsm ${cactive?'bd':'b-ok'}" onclick="toggleCont(${i})">${cactive?'Deactivate':'Activate'}</button></td></tr>`;}).join('');};renderAdC();window.delCont=i=>{if(!confirm('Delete?'))return;MASTER.contacts.splice(i,1);saveMaster();renderAdC();};window.toggleCont=i=>{MASTER.contacts[i].status=MASTER.contacts[i].status==='inactive'?'active':'inactive';saveMaster();renderAdC();};}
+function rAdS(c){const s=MASTER.suggestions||[];if(!s.length){c.innerHTML=`<div style="padding:20px;color:var(--gray-400);font-size:13px">No suggestions yet.</div>`;return;}c.innerHTML=`<div class="tbl-wrap"><table><thead><tr><th>Type</th><th>By</th><th>Date</th><th>Details</th><th>Status</th><th></th></tr></thead><tbody>${s.map((sg,i)=>{const bn=USERS.find(u=>u.id===sg.suggestedBy)?.name||sg.suggestedBy;const det=sg.type==='account'?`${adn(sg.data)} \u00b7 ${sg.data.segment||''} \u00b7 ${sg.data.city||''}`:`${sg.data.name} @ ${sg.data.account} \u00b7 ${sg.data.title||''}`;return`<tr><td><span class="pill pi">${sg.type}</span></td><td style="font-size:12px">${bn}</td><td style="font-size:11px">${sg.date}</td><td class="tdx" style="font-size:11px">${det}</td><td><span class="sbadge sb-${sg.status}">${sg.status}</span></td><td style="white-space:nowrap">${sg.status==='pending'?`<button class="btn b-ok bsm" onclick="appS(${i})">Approve</button> <button class="btn bd bsm" onclick="rejS(${i})">Reject</button>`:''}</td></tr>`;}).join('')}</tbody></table></div>`;}
+window.appS=i=>{const s=MASTER.suggestions[i];s.status='approved';if(s.type==='account'){if(isDupA(s.data.name,s.data.unit,-1)&&!confirm('Duplicate detected. Add anyway?'))return;MASTER.accounts.push(s.data);}else{if(isDupC(s.data.firstName||'',s.data.lastName||'',s.data.account,-1)&&!confirm('Duplicate detected. Add anyway?'))return;MASTER.contacts.push(s.data);}saveMaster();rAdS(document.getElementById('adc'));buildNav();};
+window.rejS=i=>{MASTER.suggestions[i].status='rejected';saveMaster();rAdS(document.getElementById('adc'));buildNav();};
+
+// ── PRODUCT MODAL ──
+function openPM(idx){const isE=idx!==undefined;const p=isE?MASTER.products[idx]:{};const vs=[...new Set(MASTER.products.map(x=>x.vendor))];mr(`<div class="overlay" onclick="cib(event)"><div class="modal"><div class="mhd"><h3>${isE?'Edit product':'Add product'}</h3><button class="ibtn" onclick="cm()"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button></div><div class="mbody"><div class="fr2"><div class="fg"><label>Vendor</label><input id="pv" value="${p.vendor||''}" list="vl"><datalist id="vl">${vs.map(v=>`<option>${v}</option>`).join('')}</datalist></div><div class="fg"><label>Product name</label><input id="pn" value="${p.name||''}"></div></div><div class="fr2"><div class="fg"><label>SKU</label><input id="ps" value="${p.sku||''}"></div><div class="fg"><label>List price (&#8377;)</label><input id="pp" type="number" value="${p.price||0}"></div></div><div class="fg"><label>Notes</label><input id="pnt" value="${p.notes||''}"></div></div><div class="mft"><button class="btn bg" onclick="cm()">Cancel</button><button class="btn bp" style="flex:1" onclick="savePM(${isE?idx:'undefined'})">${isE?'Save':'Add'}</button></div></div></div>`);}
+window.savePM=idx=>{const v=document.getElementById('pv').value.trim(),n=document.getElementById('pn').value.trim();if(!v||!n){alert('Vendor and name required');return;}const obj={id:idx!==undefined?MASTER.products[idx].id:'p'+Date.now(),vendor:v,name:n,sku:document.getElementById('ps').value.trim(),price:parseFloat(document.getElementById('pp').value)||0,notes:document.getElementById('pnt').value.trim()};if(idx!==undefined)MASTER.products[idx]=obj;else MASTER.products.push(obj);saveMaster();cm();rAdP(document.getElementById('adc'));};
+
+// ── ACCOUNT MODAL (admin) ──
+function openAdAM(idx){const isE=idx!==undefined;const a=isE?MASTER.accounts[idx]:{};mr(`<div class="overlay" onclick="cib(event)"><div class="modal"><div class="mhd"><h3>${isE?'Edit account':'Add account'}</h3><button class="ibtn" onclick="cm()"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button></div><div class="mbody"><div class="fr2"><div class="fg"><label>Company name</label><input id="an" value="${a.name||''}" oninput="chkDupA()"></div><div class="fg"><label>Unit / Site (optional)</label><input id="au" value="${a.unit||''}" placeholder="CTO2, Unit 1\u2026" oninput="chkDupA()"></div></div><div class="dup-warn" id="dwa">\u26a0 Possible duplicate.</div><div class="fr3"><div class="fg"><label>Tier</label><select id="at">${ATIERS.map(t=>`<option ${a.tier===t?'selected':''}>${t}</option>`).join('')}</select></div><div class="fg"><label>Segment</label><select id="as">${ASEGS.map(s=>`<option ${a.segment===s?'selected':''}>${s}</option>`).join('')}</select></div><div class="fg"><label>Type</label><select id="atp">${ATYPES.map(t=>`<option ${a.type===t?'selected':''}>${t}</option>`).join('')}</select></div></div><div class="fr2"><div class="fg"><label>City</label><input id="aci" value="${a.city||''}"></div><div class="fg"><label>State</label><select id="ast">${STATES.map(s=>`<option ${a.state===s?'selected':''}>${s}</option>`).join('')}</select></div></div><div class="fg"><label>Assign to reps</label><div class="rep-check-grid">${REPS().map(u=>`<label class="rep-check${(a.assignedTo||[]).includes(u.id)?' sel':''}"><input type="checkbox" value="${u.id}" ${(a.assignedTo||[]).includes(u.id)?'checked':''}><div class="av" style="background:${u.color}22;color:${u.color}">${u.av}</div>${u.name}</label>`).join('')}</div></div><div class="fg"><label>Notes</label><textarea id="ano">${a.notes||''}</textarea></div></div><div class="mft"><button class="btn bg" onclick="cm()">Cancel</button><button class="btn bp" style="flex:1" onclick="saveAdA(${isE?idx:'undefined'})">${isE?'Save':'Add'}</button></div></div></div>`);}
+window.chkDupA=()=>{const n=document.getElementById('an')?.value.trim(),u=document.getElementById('au')?.value.trim(),w=document.getElementById('dwa');if(w)w.style.display=n&&isDupA(n,u,-1)?'block':'none';};
+window.saveAdA=idx=>{const name=document.getElementById('an').value.trim();if(!name){alert('Name required');return;}const unit=document.getElementById('au').value.trim();if(isDupA(name,unit,idx)&&!confirm('Possible duplicate. Save anyway?'))return;const assignedTo=[...document.querySelectorAll('.rep-check input:checked')].map(cb=>cb.value);const existing=idx!==undefined?MASTER.accounts[idx]:{};const obj={name,unit,tier:document.getElementById('at').value,segment:document.getElementById('as').value,type:document.getElementById('atp').value,city:document.getElementById('aci').value.trim(),state:document.getElementById('ast').value,assignedTo,notes:document.getElementById('ano').value.trim(),status:existing.status||'active'};if(idx!==undefined)MASTER.accounts[idx]=obj;else MASTER.accounts.push(obj);saveMaster();cm();rAdA(document.getElementById('adc'));};
+
+// ── CONTACT MODAL (admin) — with explicit visibleTo per rep ──
+function openAdCM(idx){
+  const isE=idx!==undefined;const c=isE?MASTER.contacts[idx]:{};
+  mr(`<div class="overlay" onclick="cib(event)"><div class="modal"><div class="mhd"><h3>${isE?'Edit contact':'Add contact'}</h3><button class="ibtn" onclick="cm()"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button></div>
+  <div class="mbody">
+    <div class="fr2"><div class="fg"><label>First name</label><input id="cfn" value="${c.firstName||''}"></div><div class="fg"><label>Last name</label><input id="cln" value="${c.lastName||''}"></div></div>
+    <div class="dup-warn" id="dwc">\u26a0 Possible duplicate at this account.</div>
+    <div class="fg"><label>Account (unit)</label><select id="cac"><option value="">-- select --</option>${MASTER.accounts.map(a=>`<option ${c.account===adn(a)?'selected':''}>${adn(a)}</option>`).join('')}</select></div>
+    <div class="fr2"><div class="fg"><label>Title</label><input id="cti" value="${c.title||''}"></div><div class="fg"><label>Department</label><input id="cdp" value="${c.dept||''}"></div></div>
+    <div class="fr2"><div class="fg"><label>Decision role</label><select id="crl">${DROLES.map(r=>`<option ${c.role===r?'selected':''}>${r}</option>`).join('')}</select></div><div class="fg"><label>Phone</label><input id="cph" value="${c.phone||''}"></div></div>
+    <div class="fg"><label>Email</label><input id="cem" type="email" value="${c.email||''}"></div>
+    <div class="fg"><label>LinkedIn</label><input id="cli" value="${c.linkedin||''}"></div>
+    <div class="fg">
+      <label>Visible to (select reps who can see this contact)</label>
+      <div class="rep-check-grid">${REPS().map(u=>`<label class="rep-check${(c.visibleTo||[]).includes(u.id)?' sel':''}"><input type="checkbox" value="${u.id}" ${(c.visibleTo||[]).includes(u.id)?'checked':''}><div class="av" style="background:${u.color}22;color:${u.color}">${u.av}</div>${u.name}</label>`).join('')}</div>
+    </div>
+    <div class="fg"><label>Notes</label><textarea id="cno">${c.notes||''}</textarea></div>
+  </div>
+  <div class="mft"><button class="btn bg" onclick="cm()">Cancel</button><button class="btn bp" style="flex:1" onclick="saveAdC(${isE?idx:'undefined'})">${isE?'Save':'Add'}</button></div></div></div>`);
+}
+window.saveAdC=idx=>{
+  const fn=document.getElementById('cfn').value.trim(),ln=document.getElementById('cln').value.trim();
+  if(!fn){alert('First name required');return;}
+  const acct=document.getElementById('cac').value;if(!acct){alert('Select account');return;}
+  if(isDupC(fn,ln,acct,idx)&&!confirm('Possible duplicate. Save anyway?'))return;
+  const visibleTo=[...document.querySelectorAll('.rep-check input:checked')].map(cb=>cb.value);
+  if(!visibleTo.length){alert('Assign to at least one rep');return;}
+  const obj={name:(fn+' '+ln).trim(),firstName:fn,lastName:ln,account:acct,title:document.getElementById('cti').value.trim(),dept:document.getElementById('cdp').value.trim(),role:document.getElementById('crl').value,phone:document.getElementById('cph').value.trim(),email:document.getElementById('cem').value.trim(),linkedin:document.getElementById('cli').value.trim(),visibleTo,notes:document.getElementById('cno').value.trim()};
+  if(idx!==undefined)MASTER.contacts[idx]=obj;else MASTER.contacts.push(obj);
+  saveMaster();cm();rAdC(document.getElementById('adc'));
+};
+
+// ── OPP MODAL ──
+function openOppM(json){
+  const opp=json?JSON.parse(json):null;EOPP=opp;
+  const accts=myAccts().map(adn);const prods=allLabels();
+  mr(`<div class="overlay" onclick="cib(event)"><div class="modal"><div class="mhd"><h3>${opp?'Edit opportunity':'New opportunity'}</h3><button class="ibtn" onclick="cm()"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button></div>
+  <div class="mbody">
+    <div class="fg"><label>Account</label><select id="facc"><option value="">-- select --</option>${accts.map(a=>`<option ${opp?.account===a?'selected':''}>${a}</option>`).join('')}</select></div>
+    <div class="fr2"><div class="fg"><label>Product</label><select id="fprod">${prods.map(p=>`<option ${opp?.product===p?'selected':''}>${p}</option>`).join('')}</select></div><div class="fg"><label>Stage</label><select id="fstage" onchange="document.getElementById('fprob').value=({'${STAGES.map(s=>s+"':"+PROB[s]).join(",'")}})[this.value]||0">${STAGES.map(s=>`<option ${opp?.stage===s?'selected':''}>${s}</option>`).join('')}</select></div></div>
+    <div class="fr2"><div class="fg"><label>Value (&#8377;)</label><input id="fval" type="number" value="${opp?.value||''}"></div><div class="fg"><label>Qty</label><input id="fqty" type="number" value="${opp?.qty||1}"></div></div>
+    <div class="fr2"><div class="fg"><label>Expected close</label><input id="fcls" type="date" value="${opp?.close||''}"></div><div class="fg"><label>Probability %</label><input id="fprob" type="number" min="0" max="100" value="${opp?.prob??PROB[opp?.stage||'Identified']??10}"></div></div>
+    <div class="fg"><label>Incumbent / notes</label><input id="fnotes" value="${opp?.notes||''}"></div>
+  </div>
+  <div class="mft"><button class="btn bg" onclick="cm()">Cancel</button><button class="btn bp" style="flex:1" onclick="saveO()">${opp?'Save changes':'Add opportunity'}</button></div></div></div>`);
+}
+window.saveO=()=>{
+  const uid=CU.id;const acc=document.getElementById('facc').value;if(!acc||acc==='-- select --'){alert('Select account');return;}
+  const stage=document.getElementById('fstage').value;
+  const o={id:EOPP?EOPP.id:gid(uid),account:acc,product:document.getElementById('fprod').value,stage,stageDate:EOPP&&EOPP.stage===stage?EOPP.stageDate:td(),qty:parseInt(document.getElementById('fqty').value)||1,value:parseFloat(document.getElementById('fval').value)||0,close:document.getElementById('fcls').value,prob:parseInt(document.getElementById('fprob').value)||PROB[stage]||0,notes:document.getElementById('fnotes').value.trim()};
+  const d=md();if(!d.opps)d.opps=[];if(EOPP){const i=d.opps.findIndex(x=>x.id===EOPP.id);if(i>-1)d.opps[i]=o;else d.opps.push(o);}else d.opps.push(o);
+  saveDrive(uid);cm();go(CP);
+};
+
+// ── ACTIVITY MODAL ──
+function openActModal(visitOnly){
+  const accts=myAccts().map(adn);
+  mr(`<div class="overlay" onclick="cib(event)"><div class="modal"><div class="mhd"><h3>Log activity</h3><button class="ibtn" onclick="cm()"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button></div>
+  <div class="mbody">
+    <div style="font-size:11px;font-weight:700;color:var(--gray-500);margin-bottom:4px">Activity type</div>
+    <div class="at-grid">${(visitOnly?[...VISIT_TYPES,...TOUCHPOINT_TYPES]:ALL_LOG_TYPES).map((t,i)=>`<button class="at-btn${(visitOnly?VISIT_TYPES:ALL_LOG_TYPES).indexOf(t)===0&&i===0?' on':i===0&&!visitOnly?' on':''} ${VISIT_TYPES.includes(t)?'':'touchpoint-btn'}" data-t="${t}" onclick="selAT('${t}')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor">${ASVG[t]||ASVG.Email}</svg>${t.length>8?t.slice(0,7)+'…':t}</button>`).join('')}</div>
+    <div class="fr2"><div class="fg"><label>Date</label><input id="adate" type="date" value="${td()}"></div><div class="fg"><label>Funnel</label><select id="afunnel"><option>Sales</option><option>Marketing</option></select></div></div>
+    <div class="fg"><label>Account</label><select id="aacc" onchange="loadCons()"><option value="">-- select --</option>${accts.map(a=>`<option>${a}</option>`).join('')}</select></div>
+    <div id="contact-section"><div class="fg"><label>Contact (your assigned contacts at this account)</label><select id="acon"><option value="">-- select account first --</option></select></div></div>
+    <div class="fg"><label>Product</label><select id="aprod"><option value="">-- select --</option>${allLabels().map(p=>`<option>${p}</option>`).join('')}</select></div>
+    <div class="fg"><label>Outcome / notes</label><textarea id="anotes" placeholder="What happened?"></textarea></div>
+    <div class="fg"><label>Next action</label><input id="anext" placeholder="Follow-up call, send quote\u2026"></div>
+  </div>
+  <div class="mft"><button class="btn bg" onclick="cm()">Cancel</button><button class="btn bp" style="flex:1" onclick="saveAct()">Log activity</button></div></div></div>`);
+}
+window.selAT=t=>{document.querySelectorAll('.at-btn').forEach(b=>b.classList.toggle('on',b.dataset.t===t));};
+window.loadCons=()=>{
+  const acc=document.getElementById('aacc')?.value;
+  const sb=document.querySelector('.at-btn.on');const type=sb?sb.dataset.t:'Call';
+  const cs=document.getElementById('contact-section');if(!cs)return;
+  const cons=acc?myContactsAt(acc):[];
+  if(VISIT_TYPES.includes(type)){
+    // Multi-select checkboxes for visits
+    cs.innerHTML=`<div class="fg"><label>Contacts met (select all who were present)</label><div style="display:flex;flex-direction:column;gap:5px;max-height:140px;overflow-y:auto;padding:4px 0">${cons.length?cons.map(c=>`<label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" class="vcon-cb" value="${c.name}" style="accent-color:var(--blue);width:15px;height:15px">${c.name}<span style="font-size:10px;color:var(--gray-400)">${c.title||''}</span></label>`).join(''):'<span style="font-size:12px;color:var(--gray-400)">No contacts at this account yet</span>'}</div></div>`;
+  } else {
+    cs.innerHTML=`<div class="fg"><label>Contact</label><select id="acon"><option value="">-- select --</option>${cons.map(c=>`<option>${c.name}</option>`).join('')}</select></div>`;
+  }
+};
+// Re-run loadCons when activity type changes
+window.selAT=t=>{document.querySelectorAll('.at-btn').forEach(b=>b.classList.toggle('on',b.dataset.t===t));loadCons();};
+window.saveAct=()=>{
+  const uid=CU.id;const sb=document.querySelector('.at-btn.on');const type=sb?sb.dataset.t:'Call';
+  const d=md();
+  const entry={date:document.getElementById('adate').value,account:document.getElementById('aacc').value,type,funnel:document.getElementById('afunnel').value,product:document.getElementById('aprod').value,notes:document.getElementById('anotes').value.trim(),nextAction:document.getElementById('anext').value.trim()};
+  if(VISIT_TYPES.includes(type)){
+    // Visit: capture per-contact-product rows
+    if(!d.visits)d.visits=[];
+    const contactRows=[...document.querySelectorAll('.vcon-row')].filter(r=>r.querySelector('.vcon-cb')?.checked).map(r=>({
+      contact:r.querySelector('.vcon-cb').value,
+      product:r.querySelector('.vcon-prod')?.value||'',
+      notes:r.querySelector('.vcon-note')?.value||''
+    }));
+    d.visits.push({...entry,contactRows,contacts:contactRows.map(r=>r.contact)});
+  }
+  // All types also go into activity log for full history
+  if(!d.acts)d.acts=[];
+  const contact=document.getElementById('acon')?.value||'';
+  d.acts.push({...entry,contact});
+  saveDrive(uid);cm();go(CP);
+};
+
+// ── PLAN MODAL ──
+function openPlanM(idx){const isE=idx!==undefined;const p=isE?(md().plan||[])[idx]:{};mr(`<div class="overlay" onclick="cib(event)"><div class="modal"><div class="mhd"><h3>${isE?'Edit entry':'Add plan entry'}</h3><button class="ibtn" onclick="cm()"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button></div><div class="mbody"><div class="fr2"><div class="fg"><label>Month (YYYY-MM)</label><input id="pm" value="${p.month||td().slice(0,7)}"></div><div class="fg"><label>Type</label><select id="pt">${ACT_TYPES.map(t=>`<option ${p.type===t?'selected':''}>${t}</option>`).join('')}</select></div></div><div class="fg"><label>Account \u2014 Contact</label><input id="pc" value="${p.contact||''}" placeholder="Dr. Reddy's CTO2 \u2014 Dr. Raghavan"></div><div class="fg"><label>Product</label><select id="pp"><option value="">-- select --</option>${allLabels().map(pl=>`<option ${p.product===pl?'selected':''}>${pl}</option>`).join('')}</select></div><div class="fr2"><div class="fg"><label>Planned</label><input id="ppl" type="number" value="${p.planned||1}"></div><div class="fg"><label>Actual</label><input id="pac" type="number" value="${p.actual||0}"></div></div></div><div class="mft"><button class="btn bg" onclick="cm()">Cancel</button><button class="btn bp" style="flex:1" onclick="savePL(${isE?idx:'undefined'})">${isE?'Save':'Add'}</button></div></div></div>`);}
+window.savePL=idx=>{const d=md();if(!d.plan)d.plan=[];const obj={month:document.getElementById('pm').value,contact:document.getElementById('pc').value.trim(),product:document.getElementById('pp').value,type:document.getElementById('pt').value,planned:parseInt(document.getElementById('ppl').value)||0,actual:parseInt(document.getElementById('pac').value)||0};if(idx!==undefined)d.plan[idx]=obj;else d.plan.push(obj);saveDrive(CU.id);cm();go('plan');};
+
+// ── SUGGEST ACCOUNT (rep) ──
+function openSugA(){mr(`<div class="overlay" onclick="cib(event)"><div class="modal"><div class="mhd"><h3>Suggest new account</h3><button class="ibtn" onclick="cm()"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button></div><div class="mbody"><div class="info-box">Maruti will review before it appears in the system.</div><div class="fr2"><div class="fg"><label>Company name</label><input id="sn" oninput="chkSD()"></div><div class="fg"><label>Unit / Site</label><input id="su" oninput="chkSD()"></div></div><div class="dup-warn" id="dws">\u26a0 May already exist in master list.</div><div class="fr3"><div class="fg"><label>Tier</label><select id="st">${ATIERS.map(t=>`<option>${t}</option>`).join('')}</select></div><div class="fg"><label>Segment</label><select id="ss">${ASEGS.map(s=>`<option>${s}</option>`).join('')}</select></div><div class="fg"><label>Type</label><select id="stp">${ATYPES.map(t=>`<option>${t}</option>`).join('')}</select></div></div><div class="fr2"><div class="fg"><label>City</label><input id="sci"></div><div class="fg"><label>State</label><select id="sst">${STATES.map(s=>`<option>${s}</option>`).join('')}</select></div></div><div class="fg"><label>Notes for admin</label><textarea id="sno"></textarea></div></div><div class="mft"><button class="btn bg" onclick="cm()">Cancel</button><button class="btn bp" style="flex:1" onclick="subSugA()">Submit</button></div></div></div>`);}
+window.chkSD=()=>{const n=document.getElementById('sn')?.value.trim(),u=document.getElementById('su')?.value.trim(),w=document.getElementById('dws');if(w)w.style.display=n&&isDupA(n,u,-1)?'block':'none';};
+window.subSugA=()=>{const name=document.getElementById('sn').value.trim();if(!name){alert('Name required');return;}const unit=document.getElementById('su').value.trim();if(isDupA(name,unit,-1)&&!confirm('May exist. Submit anyway?'))return;MASTER.suggestions.push({type:'account',suggestedBy:CU.id,date:td(),status:'pending',data:{name,unit,tier:document.getElementById('st').value,segment:document.getElementById('ss').value,type:document.getElementById('stp').value,city:document.getElementById('sci').value.trim(),state:document.getElementById('sst').value,notes:document.getElementById('sno').value.trim(),assignedTo:[CU.id]}});saveMaster();cm();alert('Suggestion submitted.');pgAC(document.querySelector('.page.on'));buildNav();};
+
+// ── SUGGEST CONTACT (rep) ──
+function openSugC(){const accts=myAccts().map(adn);mr(`<div class="overlay" onclick="cib(event)"><div class="modal"><div class="mhd"><h3>Suggest new contact</h3><button class="ibtn" onclick="cm()"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button></div><div class="mbody"><div class="info-box">Maruti will review before it appears. The contact will be visible to you by default.</div><div class="fr2"><div class="fg"><label>First name</label><input id="sfn"></div><div class="fg"><label>Last name</label><input id="sln"></div></div><div class="fg"><label>Account</label><select id="sac"><option value="">-- select --</option>${accts.map(a=>`<option>${a}</option>`).join('')}</select></div><div class="fr2"><div class="fg"><label>Title</label><input id="sti"></div><div class="fg"><label>Department</label><input id="sdp"></div></div><div class="fr2"><div class="fg"><label>Decision role</label><select id="srl">${DROLES.map(r=>`<option>${r}</option>`).join('')}</select></div><div class="fg"><label>Phone</label><input id="sph"></div></div><div class="fg"><label>Email</label><input id="sem" type="email"></div></div><div class="mft"><button class="btn bg" onclick="cm()">Cancel</button><button class="btn bp" style="flex:1" onclick="subSugC()">Submit</button></div></div></div>`);}
+window.subSugC=()=>{const fn=document.getElementById('sfn').value.trim(),ln=document.getElementById('sln').value.trim(),acct=document.getElementById('sac').value;if(!fn||!acct){alert('Name and account required');return;}if(isDupC(fn,ln,acct,-1)&&!confirm('May exist. Submit anyway?'))return;MASTER.suggestions.push({type:'contact',suggestedBy:CU.id,date:td(),status:'pending',data:{name:(fn+' '+ln).trim(),firstName:fn,lastName:ln,account:acct,title:document.getElementById('sti').value.trim(),dept:document.getElementById('sdp').value.trim(),role:document.getElementById('srl').value,phone:document.getElementById('sph').value.trim(),email:document.getElementById('sem').value.trim(),linkedin:'',visibleTo:[CU.id],notes:''}});saveMaster();cm();alert('Suggestion submitted.');pgCO(document.querySelector('.page.on'));buildNav();};
+
+
+// ── VISIT TRACKER (rep - 12 months) ──
+function pgVisits(div,uid){
+  const visits=(DD[uid]?.visits||[]).filter(v=>VISIT_TYPES.includes(v.type));
+  const u=USERS.find(x=>x.id===uid);
+  // Build last 12 months
+  const months=[];const now=new Date();
+  for(let i=11;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1);months.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`);}
+  // Group visits by month
+  const byMonth={};months.forEach(m=>byMonth[m]=[]);
+  visits.forEach(v=>{const m=v.date?.slice(0,7);if(m&&byMonth[m])byMonth[m].push(v);});
+  const monthNames=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function mLabel(ym){const[y,m]=ym.split('-');return monthNames[parseInt(m)-1]+' '+y;}
+  const totalVisits=visits.filter(v=>months.includes(v.date?.slice(0,7))).length;
+  const activeAccts=new Set(visits.filter(v=>months.includes(v.date?.slice(0,7))).map(v=>v.account)).size;
+  div.innerHTML=`
+  <div class="metrics" style="grid-template-columns:repeat(3,1fr)">
+    <div class="mc"><div class="mc-lbl">Visits (12 months)</div><div class="mc-val" style="color:var(--blue)">${totalVisits}</div></div>
+    <div class="mc"><div class="mc-lbl">Accounts visited</div><div class="mc-val">${activeAccts}</div></div>
+    <div class="mc"><div class="mc-lbl">This month</div><div class="mc-val" style="color:var(--green)">${(byMonth[months[11]]||[]).length}</div></div>
+  </div>
+  <div class="sec-hd" style="margin-top:0"><span class="sec-title">Monthly visit calendar — last 12 months</span><button class="btn bp bsm" onclick="openActModalVisit()">+ Log visit</button></div>
+  <div style="overflow-x:auto;margin-bottom:16px">
+    <div style="display:grid;grid-template-columns:repeat(12,minmax(72px,1fr));gap:6px;min-width:860px">
+      ${months.map(m=>{const mvs=byMonth[m]||[];const accts=[...new Set(mvs.map(v=>v.account))];return`<div style="background:var(--white);border:1px solid var(--gray-200);border-radius:var(--r-md);padding:8px 7px">
+        <div style="font-size:10px;font-weight:700;color:var(--gray-500);margin-bottom:6px;text-transform:uppercase">${mLabel(m)}</div>
+        ${mvs.length?mvs.map(v=>`<div style="background:${v.type==='Visit'?'var(--blue-lt)':v.type==='Demo'?'var(--green-lt)':'var(--purple-lt)'};border-radius:var(--r-sm);padding:4px 6px;margin-bottom:4px;cursor:pointer" title="${v.account} · ${(v.contacts||[]).join(', ')||v.contact||''}" onclick="showVisitDetail(${JSON.stringify(JSON.stringify(v))})">
+          <div style="font-size:9px;font-weight:700;color:${v.type==='Visit'?'var(--blue-dk)':v.type==='Demo'?'#166534':'var(--purple)'}">${v.date?.slice(5)} · ${v.type==='Microsoft Teams'?'Teams':v.type}</div>
+          <div style="font-size:9px;color:var(--gray-700);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60px">${v.account}</div>
+        </div>`).join(''):`<div style="font-size:10px;color:var(--gray-200);text-align:center;padding:8px 0">—</div>`}
+      </div>`;}).join('')}
+    </div>
+  </div>
+  <div class="sec-hd"><span class="sec-title">All visits — last 12 months</span></div>
+  <div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Type</th><th>Account</th><th>Contacts met</th><th>Product</th><th>Notes</th><th>Next action</th></tr></thead>
+  <tbody>${visits.filter(v=>months.includes(v.date?.slice(0,7))).sort((a,b)=>b.date.localeCompare(a.date)).map(v=>`<tr>
+    <td style="font-size:11px">${v.date}</td>
+    <td><span class="pill pi" style="background:${v.type==='Visit'?'var(--blue-lt)':v.type==='Demo'?'var(--green-lt)':'var(--purple-lt)'};color:${v.type==='Visit'?'var(--blue-dk)':v.type==='Demo'?'#166534':'var(--purple)'}">${v.type==='Microsoft Teams'?'Teams':v.type}</span></td>
+    <td class="tdx">${v.account}</td>
+    <td style="font-size:11px">${(v.contacts||[v.contact]).filter(Boolean).join(', ')||'—'}</td>
+    <td class="tdx" style="font-size:11px">${v.product||''}</td>
+    <td class="tdx" style="font-size:11px;color:var(--gray-500)">${v.notes||''}</td>
+    <td class="tdx" style="font-size:11px">${v.nextAction||''}</td>
+  </tr>`).join('')}</tbody></table></div>
+  <div style="margin-top:10px;font-size:11px;color:var(--gray-400)">
+    <span style="display:inline-flex;align-items:center;gap:4px;margin-right:12px"><span style="width:10px;height:10px;background:var(--blue-lt);border-radius:3px;display:inline-block"></span>In-person visit</span>
+    <span style="display:inline-flex;align-items:center;gap:4px;margin-right:12px"><span style="width:10px;height:10px;background:var(--green-lt);border-radius:3px;display:inline-block"></span>Demo</span>
+    <span style="display:inline-flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:var(--purple-lt);border-radius:3px;display:inline-block"></span>Teams meeting</span>
+  </div>`;
+  window.showVisitDetail=json=>{const v=JSON.parse(json);alert(`${v.date} · ${v.type}\nAccount: ${v.account}\nContacts: ${(v.contacts||[v.contact]).filter(Boolean).join(', ')||'—'}\nProduct: ${v.product||'—'}\nNotes: ${v.notes||'—'}\nNext: ${v.nextAction||'—'}`);};
+}
+window.openActModalVisit=()=>{openActModal(true);};
+// ── SERVICE LOG (rep) ──
+function pgService(div,uid){
+  const svcs=DD[uid]?.service||[];
+  div.innerHTML=`
+  <div class="tb"><div class="sp"></div><button class="btn bp" onclick="openServiceModal()">+ Log service</button></div>
+  <div class="tbl-wrap"><table><thead><tr><th>Account</th><th>Contacts</th><th>Type</th><th>Product</th><th>Start</th><th>End</th><th>Days</th><th>Engineer</th><th>Notes</th><th></th></tr></thead>
+  <tbody>${svcs.sort((a,b)=>b.startDate.localeCompare(a.startDate)).map((s,i)=>{
+    const days=s.startDate&&s.endDate?Math.max(1,Math.floor((new Date(s.endDate)-new Date(s.startDate))/86400000)+1):1;
+    return`<tr><td class="tdx" style="font-weight:600">${s.account}</td><td style="font-size:11px">${(s.contacts||[]).join(', ')||'—'}</td><td><span class="pill pi">${s.type}</span></td><td class="tdx" style="font-size:11px">${s.product||''}</td><td style="font-size:11px">${s.startDate}</td><td style="font-size:11px">${s.endDate||s.startDate}</td><td><span class="pill pok">${days}d</span></td><td style="font-size:11px">${s.engineer||''}</td><td class="tdx" style="font-size:11px;color:var(--gray-500)">${s.notes||''}</td><td><button class="btn bd bsm" onclick="delSvc(${i})">Del</button></td></tr>`;
+  }).join('')}</tbody></table></div>`;
+  window.delSvc=i=>{if(!confirm('Delete?'))return;const d=md();(d.service||[]).splice(i,1);saveDrive(CU.id);pgService(div,uid);};
+}
+// ── TEAM VISITS (mgmt) ──
+function pgTeamVisits(div){
+  const months=[];const now=new Date();
+  for(let i=11;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1);months.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`);}
+  const monthNames=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function mLabel(ym){const[y,m]=ym.split('-');return monthNames[parseInt(m)-1]+' '+y.slice(2);}
+  div.innerHTML=`<div class="tb"><select id="tvr" onchange="renderTV()"><option value="">All reps</option>${REPS().map(u=>`<option value="${u.id}">${u.name}</option>`).join('')}</select></div><div id="tvc"></div>`;
+  window.renderTV=()=>{
+    const rf=document.getElementById('tvr')?.value;
+    const reps=rf?REPS().filter(u=>u.id===rf):REPS();
+    const cont=document.getElementById('tvc');
+    // Summary table: reps × months
+    const rows=reps.map(u=>{
+      const visits=(DD[u.id]?.visits||[]).filter(v=>VISIT_TYPES.includes(v.type));
+      const byM={};months.forEach(m=>byM[m]=(visits.filter(v=>v.date?.slice(0,7)===m).length));
+      const total=Object.values(byM).reduce((s,v)=>s+v,0);
+      return{u,byM,total};
+    });
+    cont.innerHTML=`
+    <div style="overflow-x:auto;margin-bottom:16px">
+    <table style="width:100%;border-collapse:collapse;font-size:11px;min-width:800px">
+      <thead><tr><th style="text-align:left;padding:7px 10px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);font-size:10px;font-weight:700;color:var(--gray-500);text-transform:uppercase;white-space:nowrap">Rep</th>
+      ${months.map(m=>`<th style="text-align:center;padding:7px 5px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);font-size:10px;font-weight:700;color:var(--gray-500);text-transform:uppercase;white-space:nowrap">${mLabel(m)}</th>`).join('')}
+      <th style="text-align:center;padding:7px 8px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);font-size:10px;font-weight:700;color:var(--blue);text-transform:uppercase">Total</th></tr></thead>
+      <tbody>${rows.map(({u,byM,total})=>`<tr>
+        <td style="padding:7px 10px;font-weight:600;white-space:nowrap"><div style="display:flex;align-items:center;gap:6px"><div class="av" style="background:${u.color}22;color:${u.color}">${u.av}</div>${u.name}</div></td>
+        ${months.map(m=>`<td style="text-align:center;padding:6px 5px;border-bottom:1px solid var(--gray-100)">
+          ${byM[m]?`<span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--blue-lt);color:var(--blue-dk);font-size:11px;font-weight:700">${byM[m]}</span>`:`<span style="color:var(--gray-200);font-size:11px">—</span>`}
+        </td>`).join('')}
+        <td style="text-align:center;padding:6px 8px;font-weight:700;color:var(--blue)">${total}</td>
+      </tr>`).join('')}</tbody>
+    </table></div>
+    <div class="sec-hd"><span class="sec-title">Visit detail — all reps</span></div>
+    <div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Rep</th><th>Type</th><th>Account</th><th>Contacts met</th><th>Product</th><th>Notes</th></tr></thead>
+    <tbody>${rows.flatMap(({u})=>(DD[u.id]?.visits||[]).filter(v=>VISIT_TYPES.includes(v.type)&&months.includes(v.date?.slice(0,7))).map(v=>({...v,rName:u.name,rClr:u.color,rAv:u.av}))).sort((a,b)=>b.date.localeCompare(a.date)).map(v=>`<tr>
+      <td style="font-size:11px">${v.date}</td>
+      <td><div style="display:flex;align-items:center;gap:5px"><div class="av" style="background:${v.rClr}22;color:${v.rClr};width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px">${v.rAv}</div>${v.rName}</div></td>
+      <td><span class="pill pi">${v.type==='Microsoft Teams'?'Teams':v.type}</span></td>
+      <td class="tdx">${v.account}</td>
+      <td style="font-size:11px">${(v.contacts||[v.contact]).filter(Boolean).join(', ')||'—'}</td>
+      <td class="tdx" style="font-size:11px">${v.product||''}</td>
+      <td class="tdx" style="font-size:11px;color:var(--gray-500)">${v.notes||''}</td>
+    </tr>`).join('')}</tbody></table></div>`;
+  };renderTV();
+}
+// ── TEAM SERVICE (mgmt) ──
+function pgTeamService(div){
+  div.innerHTML=`<div class="tb"><select id="tsr" onchange="renderTS()"><option value="">All reps</option>${REPS().map(u=>`<option value="${u.id}">${u.name}</option>`).join('')}</select><select id="tst" onchange="renderTS()"><option value="">All types</option>${SERVICE_TYPES.map(t=>`<option>${t}</option>`).join('')}</select></div>
+  <div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Rep</th><th>Account</th><th>Type</th><th>Product</th><th>Start</th><th>End</th><th>Days</th><th>Notes</th></tr></thead><tbody id="tstb"></tbody></table></div>`;
+  window.renderTS=()=>{const rf=document.getElementById('tsr')?.value,tf=document.getElementById('tst')?.value;let data=REPS().flatMap(u=>(DD[u.id]?.service||[]).map(s=>({...s,rId:u.id,rName:u.name,rClr:u.color,rAv:u.av})));if(rf)data=data.filter(s=>s.rId===rf);if(tf)data=data.filter(s=>s.type===tf);data.sort((a,b)=>b.startDate.localeCompare(a.startDate));document.getElementById('tstb').innerHTML=data.map(s=>{const days=s.startDate&&s.endDate?Math.max(1,Math.floor((new Date(s.endDate)-new Date(s.startDate))/86400000)+1):1;return`<tr><td style="font-size:11px">${s.startDate}</td><td><div style="display:flex;align-items:center;gap:5px"><div class="av" style="background:${s.rClr}22;color:${s.rClr};width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px">${s.rAv}</div>${s.rName}</div></td><td class="tdx">${s.account}</td><td><span class="pill pi">${s.type}</span></td><td class="tdx" style="font-size:11px">${s.product||''}</td><td style="font-size:11px">${s.startDate}</td><td style="font-size:11px">${s.endDate||s.startDate}</td><td><span class="pill pok">${days}d</span></td><td class="tdx" style="font-size:11px;color:var(--gray-500)">${s.notes||''}</td></tr>`;}).join('');};renderTS();
+}
+// ── SERVICE MODAL ──
+function openServiceModal(){
+  const accts=myAccts().map(adn);
+  mr(`<div class="overlay" onclick="cib(event)"><div class="modal"><div class="mhd"><h3>Log service engagement</h3><button class="ibtn" onclick="cm()"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button></div>
+  <div class="mbody">
+    <div class="info-box">Service engagements (Installation, AMC, Commissioning) are tracked separately from sales visits.</div>
+    <div class="fg"><label>Account</label><select id="sacc" onchange="loadSvcContacts()">${accts.map(a=>`<option>${a}</option>`).join('')}</select></div>
+    <div id="svc-contact-section"><div class="fg"><label>Contacts present</label><div style="font-size:12px;color:var(--gray-400);padding:6px 0">Select account to load contacts</div></div></div>
+    <div class="fg"><label>Service type</label><select id="stype">${SERVICE_TYPES.map(t=>`<option>${t}</option>`).join('')}</select></div>
+    <div class="fg"><label>Product / Instrument</label><select id="sprod"><option value="">-- select --</option>${allLabels().map(p=>`<option>${p}</option>`).join('')}</select></div>
+    <div class="fr2">
+      <div class="fg"><label>Start date</label><input id="sstart" type="date" value="${td()}"></div>
+      <div class="fg"><label>End date</label><input id="send" type="date" value="${td()}"></div>
+    </div>
+    <div class="fg"><label>Engineer / attended by</label><input id="seng" placeholder="Name of person on-site"></div>
+    <div class="fg"><label>Notes / work done</label><textarea id="snotes" placeholder="What was done? Any issues?"></textarea></div>
+  </div>
+  <div class="mft"><button class="btn bg" onclick="cm()">Cancel</button><button class="btn bp" style="flex:1" onclick="saveService()">Log service</button></div></div></div>`);
+}
+window.loadSvcContacts=()=>{
+  const acc=document.getElementById('sacc')?.value;
+  const cs=document.getElementById('svc-contact-section');if(!cs)return;
+  const cons=acc?myContactsAt(acc):[];
+  cs.innerHTML=`<div class="fg"><label>Contacts present</label><div style="display:flex;flex-direction:column;gap:4px;max-height:120px;overflow-y:auto;padding:4px 0;border:1.5px solid var(--gray-200);border-radius:var(--r-md);padding:6px">${cons.length?cons.map(c=>`<label style="display:flex;align-items:center;gap:7px;font-size:12px;cursor:pointer"><input type="checkbox" class="svc-con-cb" value="${c.name}" style="accent-color:var(--blue);width:14px;height:14px">${c.name}<span style="font-size:10px;color:var(--gray-400)">${c.title||''}</span></label>`).join(''):'<span style="font-size:12px;color:var(--gray-400)">No contacts at this account</span>'}</div></div>`;
+};
+window.saveService=()=>{
+  const acc=document.getElementById('sacc').value;if(!acc){alert('Select account');return;}
+  const d=md();if(!d.service)d.service=[];
+  const svcContacts=[...document.querySelectorAll('.svc-con-cb:checked')].map(cb=>cb.value);
+  d.service.push({account:acc,contacts:svcContacts,type:document.getElementById('stype').value,product:document.getElementById('sprod').value,startDate:document.getElementById('sstart').value,endDate:document.getElementById('send').value,engineer:document.getElementById('seng').value.trim(),notes:document.getElementById('snotes').value.trim()});
+  saveDrive(CU.id);cm();go(CP);
+};
+
+// ── EVENTS PAGE (rep) ──
+function pgEvents(div,uid){
+  const events=(DD[uid]?.events||[]);
+  const ts=events.filter(e=>e.eventType==='tradeshow').sort((a,b)=>b.startDate.localeCompare(a.startDate));
+  const sm=events.filter(e=>e.eventType==='seminar').sort((a,b)=>b.date.localeCompare(a.date));
+  div.innerHTML=`
+  <div class="admin-tabs">
+    <button class="atab on" onclick="evTab('ts',this)">Trade Shows</button>
+    <button class="atab" onclick="evTab('sm',this)">Seminars</button>
+  </div>
+  <div id="ev-content"></div>`;
+  window.evTab=(tab,btn)=>{
+    document.querySelectorAll('.atab').forEach(b=>b.classList.remove('on'));btn.classList.add('on');
+    const c=document.getElementById('ev-content');
+    if(tab==='ts')renderTSTab(c,ts,uid);
+    else renderSMTab(c,sm,uid);
+  };
+  window.evTab('ts',div.querySelector('.atab'));
+}
+
+function renderTSTab(c,ts,uid){
+  const totalLeads=ts.reduce((s,e)=>s+(e.leads||[]).length,0);
+  c.innerHTML=`
+  <div class="metrics" style="grid-template-columns:repeat(3,1fr);margin-bottom:14px">
+    <div class="mc"><div class="mc-lbl">Trade shows</div><div class="mc-val" style="color:var(--blue)">${ts.length}</div></div>
+    <div class="mc"><div class="mc-lbl">Total leads</div><div class="mc-val" style="color:var(--green)">${totalLeads}</div></div>
+    <div class="mc"><div class="mc-lbl">This year</div><div class="mc-val">${ts.filter(e=>e.startDate?.startsWith(new Date().getFullYear())).length}</div></div>
+  </div>
+  <div class="tb"><div class="sp"></div><button class="btn bp" onclick="openTSModal('${uid}')">+ Log trade show</button></div>
+  ${ts.length?ts.map((e,i)=>`
+  <div style="background:var(--white);border:1px solid var(--gray-200);border-radius:var(--r-lg);padding:14px;margin-bottom:10px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
+      <div>
+        <div style="font-size:14px;font-weight:700">${e.name}</div>
+        <div style="font-size:12px;color:var(--gray-500);margin-top:2px">${e.city} &nbsp;·&nbsp; ${e.startDate}${e.endDate&&e.endDate!==e.startDate?' to '+e.endDate:''}</div>
+        ${e.products?.length?`<div style="font-size:11px;color:var(--gray-500);margin-top:3px">Products: ${e.products.join(', ')}</div>`:''}
+      </div>
+      <div style="display:flex;gap:6px;flex-shrink:0">
+        <span class="pill pok">${(e.leads||[]).length} lead${(e.leads||[]).length!==1?'s':''}</span>
+        <button class="btn bp bsm" onclick="openTSLeadModal('${uid}',${i})">+ Lead</button>
+        <button class="btn bd bsm" onclick="delEvent('${uid}',${i})">Del</button>
+      </div>
+    </div>
+    ${e.notes?`<div style="font-size:12px;color:var(--gray-500);margin-bottom:8px">${e.notes}</div>`:''}
+    ${(e.leads||[]).length?`
+    <div style="border-top:1px solid var(--gray-100);padding-top:8px">
+      <div style="font-size:10px;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px">Leads captured</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px">
+        ${(e.leads||[]).map((l,li)=>`
+        <div style="background:var(--gray-50);border:1px solid var(--gray-200);border-radius:var(--r-md);padding:8px 10px;font-size:11px">
+          <div style="font-weight:600;font-size:12px">${l.name}</div>
+          <div style="color:var(--gray-500)">${l.company}${l.designation?' · '+l.designation:''}</div>
+          ${l.phone?`<div style="color:var(--blue)">${l.phone}</div>`:''}
+          ${l.email?`<div style="color:var(--blue)">${l.email}</div>`:''}
+          ${l.interest?`<div style="color:var(--teal);margin-top:2px">${l.interest}</div>`:''}
+          <div style="display:flex;gap:4px;margin-top:5px">
+            ${l.suggested?`<span class="pill pok" style="font-size:9px">Submitted</span>`:`<button class="btn bp bsm" style="height:20px;padding:1px 7px;font-size:10px" onclick="suggestTSLead('${uid}',${i},${li})">Submit to CRM</button>`}
+          </div>
+        </div>`).join('')}
+      </div>
+    </div>`:''}
+  </div>`).join(''):`<div style="padding:30px;text-align:center;color:var(--gray-400);font-size:13px">No trade shows logged yet.</div>`}`;
+  window.delEvent=(uid2,i)=>{if(!confirm('Delete?'))return;const d=DD[uid2]||(DD[uid2]={events:[]});d.events.splice(i,1);saveDrive(uid2);pgEvents(document.querySelector('.page.on'),uid2);};
+  window.suggestTSLead=(uid2,ei,li)=>{
+    const lead=DD[uid2].events[ei].leads[li];
+    MASTER.suggestions.push({type:'account',suggestedBy:uid2,date:td(),status:'pending',
+      data:{name:lead.company,unit:'',tier:'B',segment:'Other',type:'Lead',city:'',state:'Others',assignedTo:[uid2],notes:`Trade show lead: ${lead.name}, ${lead.designation||''}`}});
+    MASTER.suggestions.push({type:'contact',suggestedBy:uid2,date:td(),status:'pending',
+      data:{name:lead.name,firstName:lead.name.split(' ')[0],lastName:lead.name.split(' ').slice(1).join(' '),account:lead.company,title:lead.designation||'',dept:'',role:'Decision Maker',phone:lead.phone||'',email:lead.email||'',linkedin:'',visibleTo:[uid2],notes:`Met at: ${DD[uid2].events[ei].name}`}});
+    DD[uid2].events[ei].leads[li].suggested=true;
+    saveDrive(uid2);saveMaster();
+    renderTSTab(document.getElementById('ev-content'),DD[uid2].events.filter(e=>e.eventType==='tradeshow'),uid2);
+    buildNav();
+    alert('Lead submitted to suggestions queue. Maruti will review and approve.');
+  };
+}
+
+function renderSMTab(c,sm,uid){
+  c.innerHTML=`
+  <div class="metrics" style="grid-template-columns:repeat(3,1fr);margin-bottom:14px">
+    <div class="mc"><div class="mc-lbl">Seminars</div><div class="mc-val" style="color:var(--blue)">${sm.length}</div></div>
+    <div class="mc"><div class="mc-lbl">Total attendees</div><div class="mc-val" style="color:var(--green)">${sm.reduce((s,e)=>s+(e.attendees||[]).length+(e.newAttendees||[]).length,0)}</div></div>
+    <div class="mc"><div class="mc-lbl">This year</div><div class="mc-val">${sm.filter(e=>e.date?.startsWith(new Date().getFullYear())).length}</div></div>
+  </div>
+  <div class="tb"><div class="sp"></div><button class="btn bp" onclick="openSMModal('${uid}')">+ Log seminar</button></div>
+  ${sm.length?sm.map((e,i)=>`
+  <div style="background:var(--white);border:1px solid var(--gray-200);border-radius:var(--r-lg);padding:14px;margin-bottom:10px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+      <div>
+        <div style="font-size:14px;font-weight:700">${e.name}</div>
+        <div style="font-size:12px;color:var(--gray-500);margin-top:2px">${e.topic?e.topic+' &nbsp;·&nbsp; ':''} ${e.city} &nbsp;·&nbsp; ${e.date}</div>
+        ${e.organiser?`<div style="font-size:11px;color:var(--gray-500)">Organised by: ${e.organiser}</div>`:''}
+        ${e.products?.length?`<div style="font-size:11px;color:var(--gray-500)">Products: ${e.products.join(', ')}</div>`:''}
+      </div>
+      <div style="display:flex;gap:6px;flex-shrink:0">
+        <span class="pill pi">${(e.attendees||[]).length+(e.newAttendees||[]).length} attended</span>
+        <button class="btn bd bsm" onclick="delEvent('${uid}',${DD[uid2]?.events?.indexOf(e)||i})">Del</button>
+      </div>
+    </div>
+    ${e.notes?`<div style="font-size:12px;color:var(--gray-500);margin-bottom:8px">${e.notes}</div>`:''}
+    ${(e.attendees||[]).length?`
+    <div style="border-top:1px solid var(--gray-100);padding-top:8px;margin-bottom:6px">
+      <div style="font-size:10px;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px">CRM contacts attended</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px">${(e.attendees||[]).map(a=>`<div style="background:var(--blue-lt);border-radius:var(--r-md);padding:4px 9px;font-size:11px"><span style="font-weight:600">${a.name}</span> <span style="color:var(--gray-500)">${a.account}</span>${a.notes?` · <span style="color:var(--teal)">${a.notes}</span>`:''}</div>`).join('')}</div>
+    </div>`:''}
+    ${(e.newAttendees||[]).length?`
+    <div style="border-top:1px solid var(--gray-100);padding-top:8px">
+      <div style="font-size:10px;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px">New attendees</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px">${(e.newAttendees||[]).map((a,ai)=>`<div style="background:var(--green-lt);border-radius:var(--r-md);padding:4px 9px;font-size:11px"><span style="font-weight:600">${a.name}</span> · ${a.company}${a.suggested?` <span class="pill pok" style="font-size:9px">Submitted</span>`:`<button class="btn bp bsm" style="height:18px;padding:1px 6px;font-size:9px;margin-left:4px" onclick="suggestSMLead('${uid}',${i},${ai})">Submit</button>`}</div>`).join('')}</div>
+    </div>`:''}
+  </div>`).join(''):`<div style="padding:30px;text-align:center;color:var(--gray-400);font-size:13px">No seminars logged yet.</div>`}`;
+  window.delEvent=(uid2,i)=>{if(!confirm('Delete?'))return;const d=DD[uid2]||(DD[uid2]={events:[]});d.events.splice(i,1);saveDrive(uid2);pgEvents(document.querySelector('.page.on'),uid2);};
+  window.suggestSMLead=(uid2,ei,ai)=>{
+    const a=DD[uid2].events[ei].newAttendees[ai];
+    MASTER.suggestions.push({type:'contact',suggestedBy:uid2,date:td(),status:'pending',
+      data:{name:a.name,firstName:a.name.split(' ')[0],lastName:a.name.split(' ').slice(1).join(' '),account:a.company,title:a.designation||'',dept:'',role:'Influencer',phone:a.phone||'',email:a.email||'',linkedin:'',visibleTo:[uid2],notes:`Met at seminar: ${DD[uid2].events[ei].name}`}});
+    DD[uid2].events[ei].newAttendees[ai].suggested=true;
+    saveDrive(uid2);saveMaster();
+    renderSMTab(document.getElementById('ev-content'),DD[uid2].events.filter(e=>e.eventType==='seminar'),uid2);
+    buildNav();
+    alert('Submitted to suggestions queue.');
+  };
+}
+
+// ── TRADE SHOW MODAL ──
+function openTSModal(uid){
+  mr(`<div class="overlay" onclick="cib(event)"><div class="modal"><div class="mhd"><h3>Log trade show</h3><button class="ibtn" onclick="cm()"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button></div>
+  <div class="mbody">
+    <div class="fg"><label>Event name</label><input id="tsn" placeholder="CPhI India 2026, IPEX, PMEC…"></div>
+    <div class="fr2">
+      <div class="fg"><label>City / Venue</label><input id="tsc" placeholder="Mumbai, Hyderabad…"></div>
+      <div class="fg"><label>Organised by</label><input id="tsorg" placeholder="UBM, Reed Exhibitions…"></div>
+    </div>
+    <div class="fr2">
+      <div class="fg"><label>Start date</label><input id="tssd" type="date" value="${td()}"></div>
+      <div class="fg"><label>End date</label><input id="tsed" type="date" value="${td()}"></div>
+    </div>
+    <div class="fg"><label>Products showcased</label>
+      <div style="display:flex;flex-wrap:wrap;gap:5px;padding:6px;border:1.5px solid var(--gray-200);border-radius:var(--r-md);max-height:120px;overflow-y:auto">
+        ${allLabels().map(p=>`<label style="display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer;padding:2px 0"><input type="checkbox" class="ts-prod-cb" value="${p}" style="accent-color:var(--blue)">${p}</label>`).join('')}
+      </div>
+    </div>
+    <div class="fg"><label>Overall notes</label><textarea id="tsno" placeholder="Key observations, competitor activity, overall outcome…"></textarea></div>
+  </div>
+  <div class="mft"><button class="btn bg" onclick="cm()">Cancel</button><button class="btn bp" style="flex:1" onclick="saveTS('${uid}')">Save trade show</button></div></div></div>`);
+}
+window.saveTS=uid=>{
+  const name=document.getElementById('tsn').value.trim();if(!name){alert('Event name required');return;}
+  const products=[...document.querySelectorAll('.ts-prod-cb:checked')].map(cb=>cb.value);
+  const d=DD[uid]||(DD[uid]={events:[]});if(!d.events)d.events=[];
+  d.events.push({eventType:'tradeshow',name,city:document.getElementById('tsc').value.trim(),organiser:document.getElementById('tsorg').value.trim(),startDate:document.getElementById('tssd').value,endDate:document.getElementById('tsed').value,products,notes:document.getElementById('tsno').value.trim(),leads:[]});
+  saveDrive(uid);cm();pgEvents(document.querySelector('.page.on'),uid);
+};
+
+// ── TRADE SHOW LEAD MODAL ──
+function openTSLeadModal(uid,eventIdx){
+  mr(`<div class="overlay" onclick="cib(event)"><div class="modal"><div class="mhd"><h3>Add lead</h3><button class="ibtn" onclick="cm()"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button></div>
+  <div class="mbody">
+    <div class="info-box">New contact met at the trade show. Not yet in CRM — you can submit to CRM after saving.</div>
+    <div class="fr2">
+      <div class="fg"><label>Full name</label><input id="tln"></div>
+      <div class="fg"><label>Company</label><input id="tlco"></div>
+    </div>
+    <div class="fr2">
+      <div class="fg"><label>Designation</label><input id="tldes"></div>
+      <div class="fg"><label>Phone</label><input id="tlph"></div>
+    </div>
+    <div class="fg"><label>Email</label><input id="tlem" type="email"></div>
+    <div class="fg"><label>Interest area / product discussed</label><input id="tlint" placeholder="Endotoxin testing, air sampling…"></div>
+    <div class="fg"><label>Notes</label><textarea id="tlno" placeholder="What was discussed? Any follow-up agreed?"></textarea></div>
+  </div>
+  <div class="mft"><button class="btn bg" onclick="cm()">Cancel</button><button class="btn bp" style="flex:1" onclick="saveTSLead('${uid}',${eventIdx})">Add lead</button></div></div></div>`);
+}
+window.saveTSLead=(uid,ei)=>{
+  const name=document.getElementById('tln').value.trim();const company=document.getElementById('tlco').value.trim();
+  if(!name||!company){alert('Name and company required');return;}
+  DD[uid].events[ei].leads.push({name,company,designation:document.getElementById('tldes').value.trim(),phone:document.getElementById('tlph').value.trim(),email:document.getElementById('tlem').value.trim(),interest:document.getElementById('tlint').value.trim(),notes:document.getElementById('tlno').value.trim(),suggested:false});
+  saveDrive(uid);cm();pgEvents(document.querySelector('.page.on'),uid);
+};
+
+// ── SEMINAR MODAL ──
+function openSMModal(uid){
+  const myConts=MASTER.contacts.filter(c=>c.status!=='inactive'&&(c.visibleTo||[]).includes(uid));
+  mr(`<div class="overlay" onclick="cib(event)"><div class="modal"><div class="mhd"><h3>Log seminar</h3><button class="ibtn" onclick="cm()"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button></div>
+  <div class="mbody">
+    <div class="fg"><label>Seminar name</label><input id="smn" placeholder="Endotoxin testing best practices…"></div>
+    <div class="fg"><label>Topic / theme</label><input id="smtop" placeholder="USP 85 updates, GMP compliance…"></div>
+    <div class="fr2">
+      <div class="fg"><label>City / Venue</label><input id="smc"></div>
+      <div class="fg"><label>Date</label><input id="smd" type="date" value="${td()}"></div>
+    </div>
+    <div class="fg"><label>Organised by</label><input id="smorg" placeholder="Sri Indra Diagnostics / Lonza / Industry body…"></div>
+    <div class="fg"><label>Products presented</label>
+      <div style="display:flex;flex-wrap:wrap;gap:5px;padding:6px;border:1.5px solid var(--gray-200);border-radius:var(--r-md);max-height:100px;overflow-y:auto">
+        ${allLabels().map(p=>`<label style="display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer;padding:2px 0"><input type="checkbox" class="sm-prod-cb" value="${p}" style="accent-color:var(--blue)">${p}</label>`).join('')}
+      </div>
+    </div>
+    <div class="fg"><label>CRM contacts who attended</label>
+      <div style="display:flex;flex-direction:column;gap:5px;max-height:160px;overflow-y:auto;padding:4px 0;border:1.5px solid var(--gray-200);border-radius:var(--r-md);padding:6px">
+        ${myConts.length?myConts.map(c=>`
+        <div style="border-bottom:1px solid var(--gray-100);padding-bottom:5px;margin-bottom:2px">
+          <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;font-weight:500">
+            <input type="checkbox" class="sm-att-cb" data-name="${c.name}" data-acct="${c.account}" style="accent-color:var(--blue);width:15px;height:15px">${c.name} <span style="font-size:10px;color:var(--gray-400)">${c.account}</span>
+          </label>
+          <input class="sm-att-note" data-name="${c.name}" placeholder="Notes on engagement (optional)…" style="font-size:11px;padding:4px 8px;border:1px solid var(--gray-200);border-radius:var(--r-sm);width:100%;margin-top:3px;display:none">
+        </div>`).join(''):`<div style="font-size:12px;color:var(--gray-400);padding:4px">No contacts in your CRM yet.</div>`}
+      </div>
+    </div>
+    <div class="fg"><label>New attendees (not in CRM)</label>
+      <div id="new-atts" style="display:flex;flex-direction:column;gap:6px"></div>
+      <button type="button" class="btn bg bsm" style="margin-top:6px" onclick="addNewAtt()">+ Add new attendee</button>
+    </div>
+    <div class="fg"><label>Overall notes</label><textarea id="smno"></textarea></div>
+  </div>
+  <div class="mft"><button class="btn bg" onclick="cm()">Cancel</button><button class="btn bp" style="flex:1" onclick="saveSM('${uid}')">Save seminar</button></div></div></div>`);
+  // Show notes input when contact checked
+  document.querySelectorAll('.sm-att-cb').forEach(cb=>{cb.addEventListener('change',function(){const noteEl=document.querySelector(`.sm-att-note[data-name="${this.dataset.name}"]`);if(noteEl)noteEl.style.display=this.checked?'block':'none';});});
+}
+let newAttCount=0;
+window.addNewAtt=()=>{
+  newAttCount++;const id=`natt${newAttCount}`;
+  const row=document.createElement('div');row.id=id;
+  row.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:6px;background:var(--gray-50);padding:8px;border-radius:var(--r-md);position:relative';
+  row.innerHTML=`<input class="natt-name" placeholder="Full name" style="font-size:12px;padding:6px 8px;border:1px solid var(--gray-200);border-radius:var(--r-sm)"><input class="natt-co" placeholder="Company" style="font-size:12px;padding:6px 8px;border:1px solid var(--gray-200);border-radius:var(--r-sm)"><input class="natt-des" placeholder="Designation" style="font-size:12px;padding:6px 8px;border:1px solid var(--gray-200);border-radius:var(--r-sm)"><input class="natt-ph" placeholder="Phone" style="font-size:12px;padding:6px 8px;border:1px solid var(--gray-200);border-radius:var(--r-sm)"><button onclick="document.getElementById('${id}').remove()" style="position:absolute;top:4px;right:4px;background:none;border:none;cursor:pointer;font-size:14px;color:var(--gray-400)">&times;</button>`;
+  document.getElementById('new-atts').appendChild(row);
+};
+window.saveSM=uid=>{
+  const name=document.getElementById('smn').value.trim();if(!name){alert('Seminar name required');return;}
+  const products=[...document.querySelectorAll('.sm-prod-cb:checked')].map(cb=>cb.value);
+  const attendees=[...document.querySelectorAll('.sm-att-cb:checked')].map(cb=>({name:cb.dataset.name,account:cb.dataset.acct,notes:document.querySelector(`.sm-att-note[data-name="${cb.dataset.name}"]`)?.value.trim()||''}));
+  const newAtts=[...document.querySelectorAll('#new-atts > div')].map(row=>({name:row.querySelector('.natt-name')?.value.trim()||'',company:row.querySelector('.natt-co')?.value.trim()||'',designation:row.querySelector('.natt-des')?.value.trim()||'',phone:row.querySelector('.natt-ph')?.value.trim()||'',suggested:false})).filter(a=>a.name&&a.company);
+  const d=DD[uid]||(DD[uid]={events:[]});if(!d.events)d.events=[];
+  d.events.push({eventType:'seminar',name,topic:document.getElementById('smtop').value.trim(),city:document.getElementById('smc').value.trim(),date:document.getElementById('smd').value,organiser:document.getElementById('smorg').value.trim(),products,attendees,newAttendees:newAtts,notes:document.getElementById('smno').value.trim()});
+  saveDrive(uid);cm();newAttCount=0;pgEvents(document.querySelector('.page.on'),uid);
+};
+
+// ── TEAM EVENTS (mgmt) ──
+function pgTeamEvents(div){
+  div.innerHTML=`
+  <div class="admin-tabs">
+    <button class="atab on" onclick="tevTab('ts',this)">Trade Shows</button>
+    <button class="atab" onclick="tevTab('sm',this)">Seminars</button>
+  </div>
+  <div id="tev-content"></div>`;
+  window.tevTab=(tab,btn)=>{
+    document.querySelectorAll('.atab').forEach(b=>b.classList.remove('on'));btn.classList.add('on');
+    const c=document.getElementById('tev-content');
+    if(tab==='ts')renderMgrTS(c);else renderMgrSM(c);
+  };
+  window.tevTab('ts',div.querySelector('.atab'));
+}
+
+function renderMgrTS(c){
+  const allTS=REPS().flatMap(u=>(DD[u.id]?.events||[]).filter(e=>e.eventType==='tradeshow').map(e=>({...e,rId:u.id,rName:u.name,rClr:u.color,rAv:u.av})));
+  allTS.sort((a,b)=>b.startDate.localeCompare(a.startDate));
+  const totalLeads=allTS.reduce((s,e)=>s+(e.leads||[]).length,0);
+  c.innerHTML=`
+  <div class="metrics" style="grid-template-columns:repeat(4,1fr);margin-bottom:14px">
+    <div class="mc"><div class="mc-lbl">Total shows</div><div class="mc-val" style="color:var(--blue)">${allTS.length}</div></div>
+    <div class="mc"><div class="mc-lbl">Total leads</div><div class="mc-val" style="color:var(--green)">${totalLeads}</div></div>
+    <div class="mc"><div class="mc-lbl">This year</div><div class="mc-val">${allTS.filter(e=>e.startDate?.startsWith(new Date().getFullYear())).length}</div></div>
+    <div class="mc"><div class="mc-lbl">Pending approval</div><div class="mc-val" style="color:var(--amber)">${MASTER.suggestions.filter(s=>s.status==='pending').length}</div></div>
+  </div>
+  <div class="tbl-wrap"><table><thead><tr><th>Event</th><th>Rep</th><th>City</th><th>Dates</th><th>Products</th><th>Leads</th><th>Notes</th></tr></thead>
+  <tbody>${allTS.map(e=>`<tr>
+    <td style="font-weight:600">${e.name}</td>
+    <td><div style="display:flex;align-items:center;gap:5px"><div class="av" style="background:${e.rClr}22;color:${e.rClr};width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px">${e.rAv}</div>${e.rName}</div></td>
+    <td style="font-size:11px">${e.city||''}</td>
+    <td style="font-size:11px">${e.startDate}${e.endDate&&e.endDate!==e.startDate?' to '+e.endDate.slice(5):''}</td>
+    <td class="tdx" style="font-size:11px">${(e.products||[]).join(', ')||''}</td>
+    <td><span class="pill pok">${(e.leads||[]).length}</span></td>
+    <td class="tdx" style="font-size:11px;color:var(--gray-500)">${e.notes||''}</td>
+  </tr>`).join('')}</tbody></table></div>`;
+}
+
+function renderMgrSM(c){
+  const allSM=REPS().flatMap(u=>(DD[u.id]?.events||[]).filter(e=>e.eventType==='seminar').map(e=>({...e,rId:u.id,rName:u.name,rClr:u.color,rAv:u.av})));
+  allSM.sort((a,b)=>b.date.localeCompare(a.date));
+  c.innerHTML=`
+  <div class="metrics" style="grid-template-columns:repeat(3,1fr);margin-bottom:14px">
+    <div class="mc"><div class="mc-lbl">Total seminars</div><div class="mc-val" style="color:var(--blue)">${allSM.length}</div></div>
+    <div class="mc"><div class="mc-lbl">CRM attendees</div><div class="mc-val" style="color:var(--green)">${allSM.reduce((s,e)=>s+(e.attendees||[]).length,0)}</div></div>
+    <div class="mc"><div class="mc-lbl">New contacts</div><div class="mc-val" style="color:var(--amber)">${allSM.reduce((s,e)=>s+(e.newAttendees||[]).length,0)}</div></div>
+  </div>
+  <div class="tbl-wrap"><table><thead><tr><th>Seminar</th><th>Rep</th><th>Topic</th><th>City</th><th>Date</th><th>Organiser</th><th>CRM attended</th><th>New</th></tr></thead>
+  <tbody>${allSM.map(e=>`<tr>
+    <td style="font-weight:600">${e.name}</td>
+    <td><div style="display:flex;align-items:center;gap:5px"><div class="av" style="background:${e.rClr}22;color:${e.rClr};width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px">${e.rAv}</div>${e.rName}</div></td>
+    <td class="tdx" style="font-size:11px">${e.topic||''}</td>
+    <td style="font-size:11px">${e.city||''}</td>
+    <td style="font-size:11px">${e.date||''}</td>
+    <td style="font-size:11px">${e.organiser||''}</td>
+    <td><span class="pill pi">${(e.attendees||[]).length}</span></td>
+    <td><span class="pill pok">${(e.newAttendees||[]).length}</span></td>
+  </tr>`).join('')}</tbody></table></div>`;
+}
+
+// ── IMPORT / EXPORT ──
+function expC(uid){const hdrs=['ID','Account','Product','Stage','Stage Date','Qty','Value','Close','Prob','Owner','Notes'];let rows=[];if(uid==='all'){REPS().forEach(u=>{(DD[u.id]?.opps||[]).forEach(o=>rows.push([o.id,o.account,o.product,o.stage,o.stageDate,o.qty,o.value,o.close,o.prob,u.name,o.notes]));});}else{(DD[uid]?.opps||[]).forEach(o=>rows.push([o.id,o.account,o.product,o.stage,o.stageDate,o.qty,o.value,o.close,o.prob,CU.name,o.notes]));}const csv=[hdrs.join(','),...rows.map(r=>r.map(v=>`"${String(v||'').replace(/"/g,'""')}"`).join(','))].join('\n');const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download=`sriindra_crm_${uid}_${td()}.csv`;a.click();}
+function impC(e,uid){const file=e.target.files[0];if(!file)return;const r=new FileReader();r.onload=ev=>{const lines=ev.target.result.split('\n').filter(l=>l.trim());const hdrs=lines[0].split(',').map(h=>h.replace(/^"|"$/g,'').trim().toLowerCase());const imp=[];for(let i=1;i<lines.length;i++){const vals=(lines[i].match(/(".*?"|[^,]+)/g)||[]).map(v=>v.replace(/^"|"$/g,'').replace(/""/g,'"').trim());const obj={};hdrs.forEach((h,j)=>obj[h]=vals[j]||'');if(!obj.account)continue;imp.push({id:obj.id||gid(uid),account:obj.account,product:obj.product||'',stage:obj.stage||'Identified',stageDate:obj['stage date']||td(),qty:parseInt(obj.qty)||1,value:parseFloat(obj.value)||0,close:obj.close||'',prob:parseInt(obj.prob)||0,notes:obj.notes||''});}if(!imp.length){alert('No valid rows.');return;}if(confirm(`Import ${imp.length} rows?`)){const d=DD[uid]||(DD[uid]={opps:[],acts:[],plan:[]});if(!d.opps)d.opps=[];imp.forEach(x=>{const i=d.opps.findIndex(o=>o.id===x.id);if(i>-1)d.opps[i]=x;else d.opps.push(x);});saveDrive(uid);go(CP);alert('Imported '+imp.length+' rows.');}};r.readAsText(file);e.target.value='';}
+
+// ── MODAL HELPERS ──
+function mr(html){document.getElementById('mroot').innerHTML=html;}
+function cm(){document.getElementById('mroot').innerHTML='';EOPP=null;}
+function cib(e){if(e.target.classList.contains('overlay'))cm();}
+
+// ── SETUP GUIDE ──
+function showSetup(){document.getElementById('login-screen').innerHTML=`<div style="max-width:540px;margin:0 auto;padding:24px 16px"><div style="display:flex;align-items:center;gap:9px;margin-bottom:22px"><div class="brand-logo" style="width:34px;height:34px;border-radius:9px"><svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:white"><path d="M3 3h7v7H3zm11 0h7v7h-7zM3 14h7v7H3zm11 3h2v-2h2v2h2v2h-2v2h-2v-2h-2z"/></svg></div><span style="font-size:15px;font-weight:700">First-time setup</span></div><div class="setup-card"><div class="step"><div class="snum">1</div><div class="sbody"><h4>Create Google Cloud project</h4><p>Go to <a href="https://console.cloud.google.com" target="_blank">console.cloud.google.com</a> &rarr; New Project &rarr; name it <code>SID Pipeline</code>.</p></div></div><div class="step"><div class="snum">2</div><div class="sbody"><h4>Enable Google Drive API</h4><p>APIs &amp; Services &rarr; Library &rarr; search <code>Google Drive API</code> &rarr; Enable.</p></div></div><div class="step"><div class="snum">3</div><div class="sbody"><h4>OAuth consent screen</h4><p>APIs &amp; Services &rarr; OAuth consent screen &rarr; External &rarr; App name: <code>SID Pipeline</code> &rarr; Scope: <code>.../auth/drive.file</code> &rarr; Save.</p></div></div><div class="step"><div class="snum">4</div><div class="sbody"><h4>Create OAuth Client ID</h4><p>Credentials &rarr; OAuth Client ID &rarr; Web application &rarr; Authorised origins: add <code>null</code> &rarr; Copy the Client ID.</p></div></div><div class="step" style="margin-bottom:0"><div class="snum">5</div><div class="sbody"><h4>Paste Client ID</h4><input class="cid-input" id="cidx" placeholder="Paste Client ID ending in .apps.googleusercontent.com"><button class="btn bp" style="margin-top:9px;width:100%" onclick="applyCid()">Save &amp; sign in</button></div></div></div><button class="btn bg" style="width:100%;margin-top:8px" onclick="location.reload()">&larr; Back</button></div>`;}
+function applyCid(){const v=document.getElementById('cidx').value.trim();if(!v.includes('.apps.googleusercontent.com')){alert('Invalid Client ID');return;}CFG.CLIENT_ID=v;try{localStorage.setItem('crm_cid',v);}catch(e){}location.reload();}
+
+// ── INIT ──
+(async function(){
+  loadReg();
+  try{const c=localStorage.getItem('crm_cid');if(c)CFG.CLIENT_ID=c;}catch(e){}
+  document.getElementById('setup-notice').classList.add('hidden');
+  // Check for stored token from previous successful auth
+  const stored=sessionStorage.getItem('crm_token');
+  if(stored){
+    try{
+      await loadGapi();
+      gapi.client.setToken({access_token:stored});
+      await identifyUser();
+    }catch(e){
+      sessionStorage.removeItem('crm_token');
+    }
+  }
+})();
+</script>
+</body>
+</html>
