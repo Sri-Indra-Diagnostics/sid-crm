@@ -374,8 +374,8 @@ async function initDrive(){
   }
   if(!MASTER.suggestions)MASTER.suggestions=[];
   if(!MASTER.territories)MASTER.territories=[
-    {id:'t1',name:'Hyderabad',reps:[],notes:'Telangana, AP'},
-    {id:'t2',name:'Visakhapatnam',reps:[],notes:'AP - Vizag cluster'},
+    {id:'t1',name:'Hyderabad',reps:['kajal','nagendra'],notes:'Telangana, AP'},
+    {id:'t2',name:'Visakhapatnam',reps:['siva'],notes:'AP - Vizag cluster'},
     {id:'t3',name:'Bengaluru',reps:[],notes:'Karnataka'},
     {id:'t4',name:'Chennai',reps:[],notes:'Tamil Nadu, Puducherry, Kerala'},
     {id:'t5',name:'Maharashtra',reps:[],notes:'Maharashtra, Goa'}
@@ -826,8 +826,16 @@ window.updateTerrReps=()=>{
   const grid=document.getElementById('terr-rep-grid');
   if(!grid)return;
   const terr=(MASTER.territories||[]).find(t=>t.id===terrId);
-  const terrReps=terr?(terr.reps||[]).map(id=>USERS.find(u=>u.id===id)).filter(Boolean):REPS();
-  grid.innerHTML=terrReps.map(u=>`<label class="rep-check"><input type="checkbox" class="acct-rep-cb" value="${u.id}"><div class="av" style="background:${u.color}22;color:${u.color}">${u.av}</div>${u.name}</label>`).join('');
+  if(!terrId||!terr){
+    grid.innerHTML='<div style="font-size:12px;color:var(--gray-400)">Select a territory first to see available reps.</div>';
+    return;
+  }
+  const terrReps=(terr.reps||[]).map(id=>USERS.find(u=>u.id===id)).filter(Boolean);
+  if(!terrReps.length){
+    grid.innerHTML='<div style="font-size:12px;color:var(--gray-400)">No reps assigned to this territory yet. Go to Territories tab first.</div>';
+    return;
+  }
+  grid.innerHTML=terrReps.map(u=>`<label class="rep-check" onclick="this.classList.toggle('sel')"><input type="checkbox" class="acct-rep-cb" value="${u.id}" style="display:none"><div class="av" style="background:${u.color}22;color:${u.color}">${u.av}</div>${u.name}</label>`).join('');
 };
 
 window.retryDrive=async()=>{
@@ -865,11 +873,17 @@ window.savePM=idx=>{const v=document.getElementById('pv').value.trim(),n=documen
 // ── ACCOUNT MODAL (admin) ──
 function openAdAM(idx){const isE=idx!==undefined;const a=isE?MASTER.accounts[idx]:{};mr(`<div class="overlay" onclick="cib(event)"><div class="modal"><div class="mhd"><h3>${isE?'Edit account':'Add account'}</h3><button class="ibtn" onclick="cm()"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button></div><div class="mbody"><div class="fr2"><div class="fg"><label>Company name</label><input id="an" value="${a.name||''}" oninput="chkDupA()"></div><div class="fg"><label>Unit / Site (optional)</label><input id="au" value="${a.unit||''}" placeholder="CTO2, Unit 1\u2026" oninput="chkDupA()"></div></div><div class="dup-warn" id="dwa">\u26a0 Possible duplicate.</div><div class="fr3"><div class="fg"><label>Tier</label><select id="at">${ATIERS.map(t=>`<option ${a.tier===t?'selected':''}>${t}</option>`).join('')}</select></div><div class="fg"><label>Segment</label><select id="as">${ASEGS.map(s=>`<option ${a.segment===s?'selected':''}>${s}</option>`).join('')}</select></div><div class="fg"><label>Type</label><select id="atp">${ATYPES.map(t=>`<option ${a.type===t?'selected':''}>${t}</option>`).join('')}</select></div></div><div class="fr2"><div class="fg"><label>City</label><input id="aci" value="${a.city||''}"></div><div class="fg"><label>State</label><select id="ast">${STATES.map(s=>`<option ${a.state===s?'selected':''}>${s}</option>`).join('')}</select></div></div><div class="fg"><label>Territory</label><select id="aterr" onchange="updateTerrReps()"><option value="">— not assigned —</option>${(MASTER.territories||[]).map(t=>`<option value="${t.id}" ${a.territory===t.id?'selected':''}>${t.name}</option>`).join('')}</select></div>
       <div class="fg" id="terr-reps-section"><label>Assign to reps</label>
-        <div class="rep-check-grid" id="terr-rep-grid">${(()=>{const terr=(MASTER.territories||[]).find(t=>t.id===a.territory);const terrReps=terr?(terr.reps||[]).map(id=>USERS.find(u=>u.id===id)).filter(Boolean):REPS();return terrReps.map(u=>`<label class="rep-check${(a.assignedTo||[]).includes(u.id)?' sel':''}"><input type="checkbox" class="acct-rep-cb" value="${u.id}" ${(a.assignedTo||[]).includes(u.id)?'checked':''}><div class="av" style="background:${u.color}22;color:${u.color}">${u.av}</div>${u.name}</label>`).join('');})()}</div>
+        <div class="rep-check-grid" id="terr-rep-grid">${(()=>{
+  const terr=(MASTER.territories||[]).find(t=>t.id===a.territory);
+  if(!a.territory||!terr)return '<div style="font-size:12px;color:var(--gray-400)">Select a territory first.</div>';
+  const terrReps=(terr.reps||[]).map(id=>USERS.find(u=>u.id===id)).filter(Boolean);
+  if(!terrReps.length)return '<div style="font-size:12px;color:var(--gray-400)">No reps in this territory yet.</div>';
+  return terrReps.map(u=>`<label class="rep-check${(a.assignedTo||[]).includes(u.id)?' sel':''}" onclick="this.classList.toggle('sel')"><input type="checkbox" class="acct-rep-cb" value="${u.id}" style="display:none" ${(a.assignedTo||[]).includes(u.id)?'checked':''}><div class="av" style="background:${u.color}22;color:${u.color}">${u.av}</div>${u.name}</label>`).join('');
+  })()}</div>
       </div>
       <div class="fg"><label>Notes</label><textarea id="ano">${a.notes||''}</textarea></div></div><div class="mft"><button class="btn bg" onclick="cm()">Cancel</button><button class="btn bp" style="flex:1" onclick="saveAdA(${isE?idx:'undefined'})">${isE?'Save':'Add'}</button></div></div></div>`);}
 window.chkDupA=()=>{const n=document.getElementById('an')?.value.trim(),u=document.getElementById('au')?.value.trim(),w=document.getElementById('dwa');if(w)w.style.display=n&&isDupA(n,u,-1)?'block':'none';};
-window.saveAdA=idx=>{const name=document.getElementById('an').value.trim();if(!name){alert('Name required');return;}const unit=document.getElementById('au').value.trim();if(isDupA(name,unit,idx)&&!confirm('Possible duplicate. Save anyway?'))return;const existing=idx!==undefined?MASTER.accounts[idx]:{};const assignedTo=[...document.querySelectorAll('.acct-rep-cb:checked')].map(cb=>cb.value);
+window.saveAdA=idx=>{const name=document.getElementById('an').value.trim();if(!name){alert('Name required');return;}const unit=document.getElementById('au').value.trim();if(isDupA(name,unit,idx)&&!confirm('Possible duplicate. Save anyway?'))return;const existing=idx!==undefined?MASTER.accounts[idx]:{};const assignedTo=[...document.querySelectorAll('#terr-rep-grid .rep-check.sel')].map(el=>el.querySelector('.acct-rep-cb')?.value).filter(Boolean);
   const obj={name,unit,territory:document.getElementById('aterr')?.value||'',assignedTo,tier:document.getElementById('at').value,segment:document.getElementById('as').value,type:document.getElementById('atp').value,city:document.getElementById('aci').value.trim(),state:document.getElementById('ast').value,notes:document.getElementById('ano').value.trim(),status:existing.status||'active'};if(idx!==undefined)MASTER.accounts[idx]=obj;else MASTER.accounts.push(obj);saveMaster();cm();rAdA(document.getElementById('adc'));};
 
 // ── CONTACT MODAL (admin) — with explicit visibleTo per rep ──
