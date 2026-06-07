@@ -292,7 +292,7 @@ async function startAuth(){
       callback:async r=>{
         if(r.error){db('err','Sign-in failed: '+r.error);return;}
         try{
-          sessionStorage.setItem('crm_token',r.access_token);
+          localStorage.setItem('crm_token',r.access_token);localStorage.setItem('crm_token_time',Date.now());
           gapi.client.setToken({access_token:r.access_token});
           console.log('Token received, calling identifyUser...');
           await identifyUser();
@@ -313,14 +313,15 @@ async function handleRedirectToken(){return false;}
 function ls(src){return new Promise(r=>{const s=document.createElement('script');s.src=src;s.onload=r;document.head.appendChild(s);});}
 function loadGapi(){return new Promise(r=>{ls('https://apis.google.com/js/api.js').then(()=>gapi.load('client',async()=>{await gapi.client.init({});await gapi.client.load('https://www.googleapis.com/discovery/v1/apis/drive/v3/rest');r();}));});}
 async function identifyUser(){
-  const token=gapi.client.getToken()?.access_token||sessionStorage.getItem('crm_token');
+  const token=gapi.client.getToken()?.access_token||localStorage.getItem('crm_token');
+  if(token&&!localStorage.getItem('crm_token_time'))localStorage.setItem('crm_token_time',Date.now());
   if(!token){db('err','No access token. Please sign in again.');return;}
   // Use tokeninfo to get email from the token itself
   const resp=await fetch('https://www.googleapis.com/oauth2/v3/tokeninfo?access_token='+encodeURIComponent(token));
   if(!resp.ok){
     console.error('tokeninfo failed:',resp.status);
     db('err','Sign-in failed ('+resp.status+'). Please try again.');
-    sessionStorage.removeItem('crm_token');
+    localStorage.removeItem('crm_token');
     return;
   }
   const info=await resp.json();
@@ -379,7 +380,7 @@ async function initDrive(){
     const toLoad=CU.role==='rep'?[CU]:REPS();
     for(const u of toLoad){const f=await mkFile(u.file,u.id);FID[u.id]=f.id;DD[u.id]=f.data;}
     db('ok','Connected · SID_CRM');
-  }catch(e){db('err','Drive error — offline mode');DD[CU.id]=ll('r_'+CU.id)||emptyRep(CU.id);MASTER=ll('master')||{products:defProds(),accounts:[],contacts:[],suggestions:[]};}
+  }catch(e){db('warn','Drive offline — using cached data');DD[CU.id]=ll('r_'+CU.id)||emptyRep(CU.id);MASTER=ll('master')||{products:defProds(),accounts:[],contacts:[],suggestions:[]};}
 }
 async function mkFolder(){const r=await gapi.client.drive.files.list({q:`name='${CFG.FOLDER}' and mimeType='application/vnd.google-apps.folder' and trashed=false`,fields:'files(id,size)',spaces:'drive'});if(r.result.files.length)return r.result.files[0].id;return(await gapi.client.drive.files.create({resource:{name:CFG.FOLDER,mimeType:'application/vnd.google-apps.folder'},fields:'id'})).result.id;}
 async function mkFile(name,uid){
@@ -402,7 +403,10 @@ async function mkFile(name,uid){
   return{id:cr.result.id,data:empty};
 }
 async function saveDrive(uid){
-  if(!FID[uid]){console.warn('saveDrive: no FID for',uid);sl('r_'+uid,DD[uid]);return;}
+  if(!FID[uid]){sl('r_'+uid,DD[uid]);return;}
+  // Check token age - warn if close to expiry
+  const tAge=Date.now()-parseInt(localStorage.getItem('crm_token_time')||'0');
+  if(tAge>3300000)db('warn','Session expiring soon — please save your work and re-sign in');
   try{const b='--sid';const body=`\r\n--${b}\r\nContent-Type: application/json\r\n\r\n${JSON.stringify({mimeType:'application/json'})}\r\n--${b}\r\nContent-Type: application/json\r\n\r\n${JSON.stringify(DD[uid])}\r\n--${b}--`;await gapi.client.request({path:'/upload/drive/v3/files/'+FID[uid],method:'PATCH',params:{uploadType:'multipart'},headers:{'Content-Type':`multipart/related; boundary="${b}"`},body});sl('r_'+uid,DD[uid]);}catch(e){sl('r_'+uid,DD[uid]);}}
 async function saveMaster(){
   if(!MFID){console.warn('saveMaster: no MFID yet');sl('master',MASTER);return;}
@@ -470,17 +474,30 @@ function launchAs(mode){
   else document.getElementById('fab').classList.add('hidden');
 }
 async function refreshMaster(){
-  if(!MFID||!gapi?.client?.getToken()?.access_token)return;
+  if(!MFID)return;
+  const tok=gapi?.client?.getToken()?.access_token||localStorage.getItem('crm_token');
+  if(!tok)return;
   try{
     const dl=await gapi.client.drive.files.get({fileId:MFID,alt:'media'});
     const fresh=typeof dl.result==='string'?JSON.parse(dl.result):dl.result;
-    if(fresh&&fresh.accounts&&fresh.accounts.length>MASTER.accounts.length){
-      MASTER=fresh;sl('master',MASTER);buildNav();
+    if(fresh&&fresh.accounts){
+      // Only update if data actually changed - compare suggestion count and account count
+      const changed=fresh.accounts.length!==MASTER.accounts.length||
+        (fresh.suggestions||[]).length!==(MASTER.suggestions||[]).length||
+        (fresh.contacts||[]).length!==(MASTER.contacts||[]).length;
+      if(changed){
+        MASTER=fresh;
+        sl('master',MASTER);
+        buildNav(); // just update nav badge counts - do NOT reload page
+      }
     }
-  }catch(e){}
+  }catch(e){
+    // Token may have expired - don't logout, just skip refresh
+    console.log('Master refresh skipped:',e.message);
+  }
 }
 setInterval(refreshMaster,180000);
-document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshMaster();});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(refreshMaster,500);});
 function switchMode(){document.getElementById('app').style.display='none';document.getElementById('fab').classList.add('hidden');document.getElementById('mode-screen').style.display='flex';}
 
 // Auto-refresh master.json every 3 minutes and on window focus
@@ -734,7 +751,7 @@ function pgAdmin(div){
 }
 function adTab(tab,btn){document.querySelectorAll('.atab').forEach(b=>b.classList.remove('on'));btn.classList.add('on');const c=document.getElementById('adc');({prods:()=>rAdP(c),accts:()=>rAdA(c),conts:()=>rAdC(c),terrs:()=>rAdT(c),suggs:()=>rAdS(c)}[tab]||(() =>rAdP(c)))();}
 function rAdP(c){c.innerHTML=`<div class="tb"><div class="sp"></div><button class="btn bp" onclick="openPM()">+ Add product</button></div><div class="tbl-wrap"><table><thead><tr><th>Vendor</th><th>Product</th><th>SKU</th><th>Price</th><th>Notes</th><th></th></tr></thead><tbody>${MASTER.products.map((p,i)=>`<tr><td style="font-weight:600">${p.vendor}</td><td>${p.name}</td><td style="font-size:11px;color:var(--gray-500)">${p.sku||''}</td><td style="font-size:11px">${p.price?inr(p.price):''}</td><td class="tdx" style="font-size:11px;color:var(--gray-500)">${p.notes||''}</td><td style="white-space:nowrap"><button class="btn bg bsm" onclick="openPM(${i})">Edit</button> <button class="btn bd bsm" onclick="delProd(${i})">Del</button></td></tr>`).join('')}</tbody></table></div>`;window.delProd=i=>{if(!confirm('Delete?'))return;MASTER.products.splice(i,1);saveMaster();rAdP(c);};}
-function rAdA(c){c.innerHTML=`<div class="tb"><input type="text" id="aq" placeholder="Search\u2026" oninput="renderAdA()" style="width:140px"><select id="aterrf" onchange="renderAdA()"><option value="">All territories</option>${(MASTER.territories||[]).map(t=>`<option value="${t.id}">${t.name}</option>`).join('')}</select><label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--gray-500);cursor:pointer"><input type="checkbox" id="ashowInactive" onchange="renderAdA()" style="accent-color:var(--blue)"> Show inactive</label><div class="sp"></div><button class="btn bp" onclick="openAdAM()">+ Add account</button></div><div class="tbl-wrap"><table><thead><tr><th>Company</th><th>Unit / Site</th><th>Territory</th><th>Tier</th><th>Segment</th><th>City</th><th>State</th><th>Status</th><th></th></tr></thead><tbody id="aatb2"></tbody></table></div>`;window.renderAdA=()=>{const q=(document.getElementById('aq')?.value||'').toLowerCase();const showInact=document.getElementById('ashowInactive')?.checked;let rows=MASTER.accounts.filter(a=>(showInact||a.status!=='inactive')&&(!q||adn(a).toLowerCase().includes(q)||a.segment?.toLowerCase().includes(q)));document.getElementById('aatb2').innerHTML=rows.map((a,i)=>{const an=(a.assignedTo||[]).map(id=>USERS.find(u=>u.id===id)?.name||id).join(', ');const active=a.status!=='inactive';return`<tr style="opacity:${active?1:.55}"><td style="font-weight:600">${a.name}</td><td style="font-size:11px">${a.unit||''}</td><td><span class="pill pi">${a.tier||''}</span></td><td class="tdx" style="font-size:11px">${a.segment||''}</td><td style="font-size:11px">${a.city||''}</td><td style="font-size:11px">${a.state||''}</td><td style="font-size:11px">${an||'\u2014'}</td><td><span class="pill ${active?'pok':'pr'}">${active?'Active':'Inactive'}</span></td><td style="white-space:nowrap"><button class="btn bg bsm" onclick="openAdAM(${i})">Edit</button> <button class="btn bsm ${active?'bd':'b-ok'}" onclick="toggleAcct(${i})">${active?'Deactivate':'Activate'}</button></td></tr>`;}).join('');};renderAdA();window.delAcc=i=>{if(!confirm('Delete?'))return;MASTER.accounts.splice(i,1);saveMaster();renderAdA();};window.toggleAcct=i=>{MASTER.accounts[i].status=MASTER.accounts[i].status==='inactive'?'active':'inactive';saveMaster();renderAdA();};}
+function rAdA(c){c.innerHTML=`<div class="tb"><input type="text" id="aq" placeholder="Search\u2026" oninput="renderAdA()" style="width:140px"><select id="aterrf" onchange="renderAdA()"><option value="">All territories</option>${(MASTER.territories||[]).map(t=>`<option value="${t.id}">${t.name}</option>`).join('')}</select><label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--gray-500);cursor:pointer"><input type="checkbox" id="ashowInactive" onchange="renderAdA()" style="accent-color:var(--blue)"> Show inactive</label><div class="sp"></div><button class="btn bp" onclick="openAdAM()">+ Add account</button></div><div class="tbl-wrap"><table><thead><tr><th>Company</th><th>Unit / Site</th><th>Territory</th><th>Tier</th><th>Segment</th><th>City</th><th>State</th><th>Status</th><th></th></tr></thead><tbody id="aatb2"></tbody></table></div>`;window.renderAdA=()=>{const q=(document.getElementById('aq')?.value||'').toLowerCase();const showInact=document.getElementById('ashowInactive')?.checked;const tf=document.getElementById('aterrf')?.value;let rows=MASTER.accounts.filter(a=>(showInact||a.status!=='inactive')&&(!q||adn(a).toLowerCase().includes(q)||a.segment?.toLowerCase().includes(q))&&(!tf||a.territory===tf));document.getElementById('aatb2').innerHTML=rows.map((a,i)=>{const terrName=(MASTER.territories||[]).find(t=>t.id===a.territory)?.name||'\u2014';const active=a.status!=='inactive';return`<tr style="opacity:${active?1:.55}"><td style="font-weight:600">${a.name}</td><td style="font-size:11px">${a.unit||''}</td><td><span class="pill pi" style="font-size:10px;background:var(--blue-lt);color:var(--blue-dk)">${terrName}</span></td><td><span class="pill pi">${a.tier||''}</span></td><td class="tdx" style="font-size:11px">${a.segment||''}</td><td style="font-size:11px">${a.city||''}</td><td style="font-size:11px">${a.state||''}</td><td><span class="pill ${active?'pok':'pr'}">${active?'Active':'Inactive'}</span></td><td style="white-space:nowrap"><button class="btn bg bsm" onclick="openAdAM(${i})">Edit</button> <button class="btn bsm ${active?'bd':'b-ok'}" onclick="toggleAcct(${i})">${active?'Deactivate':'Activate'}</button></td></tr>`;}).join('');};renderAdA();window.delAcc=i=>{if(!confirm('Delete?'))return;MASTER.accounts.splice(i,1);saveMaster();renderAdA();};window.toggleAcct=i=>{MASTER.accounts[i].status=MASTER.accounts[i].status==='inactive'?'active':'inactive';saveMaster();renderAdA();};}
 function rAdC(c){c.innerHTML=`<div class="tb"><select id="acf2" onchange="renderAdC()"><option value="">All accounts</option>${MASTER.accounts.map(a=>`<option>${adn(a)}</option>`).join('')}</select><label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--gray-500);cursor:pointer"><input type="checkbox" id="cshowInactive" onchange="renderAdC()" style="accent-color:var(--blue)"> Show inactive</label><div class="sp"></div><button class="btn bp" onclick="openAdCM()">+ Add contact</button></div><div class="tbl-wrap"><table><thead><tr><th>Name</th><th>Account</th><th>Title</th><th>Dept</th><th>Role</th><th>Phone</th><th>Email</th><th>Visible to</th><th>Status</th><th></th></tr></thead><tbody id="actb2"></tbody></table></div>`;window.renderAdC=()=>{const af=document.getElementById('acf2')?.value;const showInactC=document.getElementById('cshowInactive')?.checked;let rows=MASTER.contacts.filter(c=>showInactC||c.status!=='inactive');if(af)rows=rows.filter(c=>c.account===af);document.getElementById('actb2').innerHTML=rows.map((c,i)=>{const vn=(c.visibleTo||[]).map(id=>USERS.find(u=>u.id===id)?.av||id).join(', ');const cactive=c.status!=='inactive';return`<tr style="opacity:${cactive?1:.55}"><td style="font-weight:600">${c.name}</td><td class="tdx">${c.account}</td><td class="tdx" style="font-size:11px">${c.title||''}</td><td class="tdx" style="font-size:11px">${c.dept||''}</td><td><span class="pill pi" style="font-size:9px">${c.role||''}</span></td><td style="font-size:11px">${c.phone||''}</td><td style="font-size:11px;color:var(--blue)">${c.email||''}</td><td style="font-size:11px;color:var(--gray-500)">${vn||'\u2014'}</td><td><span class="pill ${cactive?'pok':'pr'}">${cactive?'Active':'Inactive'}</span></td><td style="white-space:nowrap"><button class="btn bg bsm" onclick="openAdCM(${i})">Edit</button> <button class="btn bsm ${cactive?'bd':'b-ok'}" onclick="toggleCont(${i})">${cactive?'Deactivate':'Activate'}</button></td></tr>`;}).join('');};renderAdC();window.delCont=i=>{if(!confirm('Delete?'))return;MASTER.contacts.splice(i,1);saveMaster();renderAdC();};window.toggleCont=i=>{MASTER.contacts[i].status=MASTER.contacts[i].status==='inactive'?'active':'inactive';saveMaster();renderAdC();};}
 
 function rAdT(c){
@@ -1399,7 +1416,7 @@ function applyCid(){const v=document.getElementById('cidx').value.trim();if(!v.i
   try{const c=localStorage.getItem('crm_cid');if(c)CFG.CLIENT_ID=c;}catch(e){}
   document.getElementById('setup-notice').classList.add('hidden');
   // Check for stored token - but verify it's still valid first
-  const stored=sessionStorage.getItem('crm_token');
+  const stored=localStorage.getItem('crm_token');
   if(stored){
     try{
       // Quick check if token is still valid
@@ -1414,10 +1431,10 @@ function applyCid(){const v=document.getElementById('cidx').value.trim();if(!v.i
           if(u){CU={...u};await initDrive();launch();}
         }
       } else {
-        sessionStorage.removeItem('crm_token');
+        localStorage.removeItem('crm_token');
       }
     }catch(e){
-      sessionStorage.removeItem('crm_token');
+      localStorage.removeItem('crm_token');
     }
   }
 })();
