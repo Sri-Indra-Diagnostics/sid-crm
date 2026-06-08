@@ -388,11 +388,7 @@ async function initDrive(){
     for(const u of toLoad){const f=await mkFile(u.file,u.id);FID[u.id]=f.id;DD[u.id]=f.data;}
     db('ok','Connected · SID_CRM');
   }catch(e){
-    if(!retried){
-      retried=true;
-      await new Promise(res=>setTimeout(res,1500));
-      return driveCall(); // retry once after brief delay
-    }
+
     db('warn','Drive offline — <a href="#" onclick="retryDrive()" style="color:var(--blue);text-decoration:underline">Reconnect</a>');DD[CU.id]=ll('r_'+CU.id)||emptyRep(CU.id);MASTER=ll('master')||{products:defProds(),accounts:[],contacts:[],suggestions:[]};}
 }
 async function mkFolder(){const r=await gapi.client.drive.files.list({q:`name='${CFG.FOLDER}' and mimeType='application/vnd.google-apps.folder' and trashed=false`,fields:'files(id,size)',spaces:'drive'});if(r.result.files.length)return r.result.files[0].id;return(await gapi.client.drive.files.create({resource:{name:CFG.FOLDER,mimeType:'application/vnd.google-apps.folder'},fields:'id'})).result.id;}
